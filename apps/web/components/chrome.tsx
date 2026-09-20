@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon, paths } from './icons';
 
 export function StatCard({
@@ -75,17 +75,36 @@ export function LiveClock() {
 
 export function BootLoader({ done }: { done: boolean }) {
   const [show, setShow] = useState(true);
+  const [fading, setFading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const finish = useCallback(() => {
+    setFading(true);
+    setTimeout(() => {
+      setShow(false);
+    }, 350);
+  }, []);
+
   useEffect(() => {
-    if (done) {
-      const id = setTimeout(() => setShow(false), 650);
-      return () => clearTimeout(id);
+    if (done && !fading) {
+      finish();
     }
-  }, [done]);
+  }, [done, fading, finish]);
+
+  useEffect(() => {
+    const fallback = setTimeout(() => {
+      finish();
+    }, 3200);
+    return () => clearTimeout(fallback);
+  }, [finish]);
+
   if (!show) return null;
+
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-white ${done ? 'boot-fade' : ''}`}
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-350 ease-out ${
+        fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
     >
       <video
         ref={videoRef}
@@ -94,10 +113,14 @@ export function BootLoader({ done }: { done: boolean }) {
         muted
         playsInline
         preload="auto"
-        onLoadedMetadata={() => {
-          if (videoRef.current) videoRef.current.playbackRate = 5;
+        onPlay={() => {
+          if (videoRef.current) videoRef.current.playbackRate = 2.2;
         }}
-        className="h-32 w-32 object-contain md:h-40 md:w-40"
+        onLoadedMetadata={() => {
+          if (videoRef.current) videoRef.current.playbackRate = 2.2;
+        }}
+        onEnded={finish}
+        className="h-36 w-36 object-contain md:h-48 md:w-48"
       />
     </div>
   );
