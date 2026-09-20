@@ -71,10 +71,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       /* SSR */
     }
     showToast(
-      next ? 'Developer Mode Active' : 'Standard Mode Active',
-      next
-        ? 'cURL inspectors, SDK snippets, raw payloads & API key tools unlocked.'
-        : 'Clean executive overview mode active.',
+      next ? 'Activated' : 'Deactivated',
+      '',
       next ? 'info' : 'success'
     );
   };

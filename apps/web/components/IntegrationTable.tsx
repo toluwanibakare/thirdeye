@@ -131,7 +131,7 @@ export function IntegrationTable({
                         disabled={busy}
                         className="rounded-lg border border-[#19D98A]/30 bg-[#19D98A]/10 px-2.5 py-1.5 text-[11.5px] font-semibold text-[#19D98A] transition-colors hover:bg-[#19D98A]/20 disabled:opacity-50"
                       >
-                        {busy ? '…' : 'Release'}
+                        {busy ? '…' : 'Activate'}
                       </button>
                     ) : (
                       <button
@@ -139,7 +139,7 @@ export function IntegrationTable({
                         disabled={busy}
                         className="rounded-lg border border-[#FF4D5E]/30 bg-[#FF4D5E]/10 px-2.5 py-1.5 text-[11.5px] font-semibold text-[#FF8090] transition-colors hover:bg-[#FF4D5E]/20 disabled:opacity-50"
                       >
-                        {busy ? '…' : 'Quarantine'}
+                        {busy ? '…' : 'Deactivate'}
                       </button>
                     )}
                   </div>

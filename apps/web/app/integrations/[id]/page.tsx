@@ -16,6 +16,7 @@ import { EventTimeline } from '@/components/EventTimeline';
 import { Icon, paths } from '@/components/icons';
 import { RiskBadge, RiskRing, StatusDot } from '@/components/RiskBadge';
 import { useDevMode } from '@/app/shell';
+import { showToast } from '@/components/NotificationToast';
 import {
   apiSafe,
   getAllowedData,
@@ -96,6 +97,7 @@ export default function IntegrationDetail() {
           ),
         }
       );
+      showToast(kind === 'release' ? 'Activated' : 'Deactivated', '', kind === 'release' ? 'success' : 'warn');
       await load();
     } finally {
       setBusy(false);
@@ -220,7 +222,7 @@ const thirdeye = new ThirdEye({
                 disabled={busy}
                 className="btn-primary w-full sm:w-auto justify-center"
               >
-                <Icon d={paths.check} size={15} /> {busy ? '…' : 'Release integration'}
+                <Icon d={paths.check} size={15} /> {busy ? '…' : 'Activate'}
               </button>
             ) : (
               <button
@@ -228,7 +230,7 @@ const thirdeye = new ThirdEye({
                 disabled={busy}
                 className="btn-danger w-full sm:w-auto justify-center"
               >
-                <Icon d={paths.lock} size={15} /> {busy ? '…' : 'Quarantine'}
+                <Icon d={paths.lock} size={15} /> {busy ? '…' : 'Deactivate'}
               </button>
             )}
             <Link href="/simulator" className="btn-ghost w-full sm:w-auto justify-center">

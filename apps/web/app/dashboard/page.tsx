@@ -93,16 +93,12 @@ export default function Dashboard() {
   async function quarantine(id: string) {
     setQuarantining(id);
     try {
-      const r = await apiSafe(
+      await apiSafe(
         `/api/integrations/${id}/quarantine`,
         { status: 'QUARANTINED' },
         { method: 'POST', body: JSON.stringify({ reason: 'Manual quarantine from overview' }) }
       );
-      showToast(
-        r.live ? 'Integration quarantined' : 'Quarantine queued (offline)',
-        r.live ? `${id} blocked pending review.` : `${id} will sync when engine is back.`,
-        'warn'
-      );
+      showToast('Deactivated', '', 'warn');
     } finally {
       setQuarantining(null);
       load();
@@ -113,7 +109,7 @@ export default function Dashboard() {
     setQuarantining(id);
     try {
       await apiSafe(`/api/integrations/${id}/release`, {}, { method: 'POST', body: JSON.stringify({}) });
-      showToast('Integration released', `${id} restored to active monitoring.`, 'success');
+      showToast('Activated', '', 'success');
     } finally {
       setQuarantining(null);
       load();
