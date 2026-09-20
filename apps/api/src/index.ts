@@ -13,17 +13,28 @@ import { storexRouter } from './storex/router.js';
 const app = express();
 const serverStartTime = Date.now();
 
-const allowedOrigins = process.env.WEB_URL
+const explicitOrigins = process.env.WEB_URL
   ? process.env.WEB_URL.split(',').map(origin => origin.trim())
-  : ['http://localhost:3000'];
+  : [];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true);
+      if (explicitOrigins.includes('*') || explicitOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error('CORS request blocked by security policy'));
+      const isLocalOrVercel =
+        /^https?:\/\/(localhost|127\.0\.0\.1|172\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/.test(
+          origin
+        ) ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('thirdeye');
+
+      if (isLocalOrVercel) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS request from ${origin} blocked by security policy`));
     },
     credentials: true,
   })
