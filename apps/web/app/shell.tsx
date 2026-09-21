@@ -145,10 +145,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Image
                   src="/logo.jpeg"
                   alt="ThirdEye"
-                  width={32}
-                  height={32}
+                  width={36}
+                  height={36}
                   style={{ width: 'auto', height: 'auto' }}
-                  className="h-7 w-auto object-contain transition-transform group-active:scale-95"
+                  className="h-8.5 w-auto object-contain transition-transform group-active:scale-95"
                   onError={() => setLogoOk(false)}
                   priority
                 />
