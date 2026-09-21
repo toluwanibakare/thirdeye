@@ -1,5 +1,4 @@
 'use client';
-export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { EventTimeline } from '@/components/EventTimeline';
