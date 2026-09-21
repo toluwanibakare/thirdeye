@@ -226,7 +226,7 @@ export default function LandingPage() {
             className="truncate text-[12.5px] font-semibold text-white"
             style={{ letterSpacing: '0.01em' }}
           >
-            ICSC 2026 · Track G — watch a live credential-compromise demo, 8 → 95 in four phases{' '}
+            Watch a live credential-compromise demo, 8 → 95 in four phases{' '}
             <span className="underline underline-offset-2">Run it →</span>
           </Link>
           <button
@@ -285,7 +285,7 @@ export default function LandingPage() {
                   className="mt-0.5 block text-[10px] sm:text-[11px] font-medium"
                   style={{ letterSpacing: '0.06em', color: '#6E7E99' }}
                 >
-                  TRACK G · ICSC 2026
+                  INTEGRATION SECURITY PLATFORM
                 </span>
               </span>
             </Link>
@@ -1398,7 +1398,7 @@ never just the score.`}
                   className="mt-1 block text-[10px] font-medium"
                   style={{ letterSpacing: '0.14em', color: '#6E7E99' }}
                 >
-                  TRACK G · ICSC 2026
+              
                 </span>
               </span>
             </Link>
@@ -1506,7 +1506,7 @@ never just the score.`}
         >
           <span className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-[#19D98A] animate-pulseDot" />
-            ThirdEye · ICSC 2026 · Track G
+            ThirdEye · Continuous Integration Security
           </span>
           <span className="mono-num hidden text-[11px] md:inline" style={{ color: '#475569' }}>
             purpose + scope + behaviour → trust

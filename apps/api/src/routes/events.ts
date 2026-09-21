@@ -188,7 +188,7 @@ eventsRouter.get('/export', async (req: Request, res: Response) => {
 
     return res.status(200).json({
       title: 'ThirdEye Security Incident & Audit Compliance Report',
-      standard: 'Track G Consumer & Merchant Protection Specification',
+      standard: 'ThirdEye Consumer & Merchant Protection Specification',
       generatedAt: new Date().toISOString(),
       totalRecords: events.length,
       genesisHash: GENESIS_HASH,

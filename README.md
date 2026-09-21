@@ -8,7 +8,7 @@ A **continuous trust layer for third-party integrations** — every request an
 authorized integration makes is scored against its declared purpose _before_ it
 lands, then allowed, throttled, or quarantined.
 
-**ICSC 2nd Edition · Track G**
+**Continuous Integration Security Platform**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![Express](https://img.shields.io/badge/Express-5-lightgrey?logo=express)](https://expressjs.com/)
@@ -467,7 +467,7 @@ recording — judges love live demos, but engineers keep receipts.
 
 ## Team
 
-**G1 · ICSC 2nd Edition** — two backend, two frontend:
+**Team** — two backend, two frontend:
 
 - **BE-1** — schema, seed, CRUD, stats/activity
 - **BE-2** — risk engine, `check-request`, quarantine, simulator

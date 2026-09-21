@@ -2,7 +2,7 @@
   "name": "thirdeye",
   "version": "0.1.0",
   "private": true,
-  "description": "ThirdEye watches your third parties — ICSC 2nd Edition G1",
+  "description": "ThirdEye watches your third parties — Continuous Integration Security",
   "workspaces": [
     "apps/*",
     "packages/*"

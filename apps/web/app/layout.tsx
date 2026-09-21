@@ -4,7 +4,7 @@ import { AppShell } from './shell';
 
 export const metadata: Metadata = {
   title: 'ThirdEye — Third-party trust layer',
-  description: 'Continuous trust layer for third-party e-commerce integrations. Track G, ICSC 2026.',
+  description: 'Continuous trust layer for third-party e-commerce integrations.',
   icons: {
     icon: '/logo.jpeg',
     shortcut: '/logo.jpeg',

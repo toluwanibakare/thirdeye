@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const id = setTimeout(() => setBooted(true), 2800);
+    const id = setTimeout(() => setBooted(true), 10000);
     return () => clearTimeout(id);
   }, []);
 
@@ -109,7 +109,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <>
         <BootLoader done={booted} />
         <NotificationToastContainer />
-        {children}
+        <div className={booted ? 'opacity-100 transition-opacity duration-700' : 'opacity-0 pointer-events-none'}>
+          {children}
+        </div>
       </>
     );
   }
@@ -119,7 +121,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <BootLoader done={booted} />
       <NotificationToastContainer />
 
-      <div className="min-h-screen w-full max-w-[100vw] overflow-x-clip bg-[#12131C] text-[#F2F4F8] md:flex">
+      <div className={booted ? 'opacity-100 transition-opacity duration-700 min-h-screen w-full max-w-[100vw] overflow-x-clip bg-[#12131C] text-[#F2F4F8] md:flex' : 'opacity-0 pointer-events-none min-h-screen w-full max-w-[100vw] overflow-x-clip bg-[#12131C] text-[#F2F4F8] md:flex'}>
         {/* Mobile overlay */}
         {mobileOpen && (
           <button

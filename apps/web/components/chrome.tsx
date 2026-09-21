@@ -73,7 +73,7 @@ export function LiveClock() {
   );
 }
 
-export function BootLoader({ done }: { done: boolean }) {
+export function BootLoader({ done }: { done?: boolean }) {
   const [show, setShow] = useState(true);
   const [fading, setFading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -102,10 +102,24 @@ export function BootLoader({ done }: { done: boolean }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-350 ease-out ${
+      className={`fixed inset-0 z-[99999] flex h-screen w-screen items-center justify-center bg-[#020617] transition-opacity duration-350 ease-out ${
         fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
+      style={{ backgroundColor: '#020617' }}
     >
+      {/* Subtle radial cyan glow overlay inside opaque container */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(circle at center, rgba(0, 206, 201, 0.16) 0%, rgba(14, 165, 233, 0.08) 35%, transparent 70%)',
+        }}
+      />
+
+      {/* Subtle cyan ambient glow orb behind the video */}
+      <div className="absolute h-56 w-56 rounded-full bg-[#00CEC9]/15 blur-3xl pointer-events-none sm:h-72 sm:w-72 md:h-96 md:w-96" />
+
+      {/* Animated ThirdEye logo video centered seamlessly on dark background */}
       <video
         ref={videoRef}
         src="/loading.webm"
@@ -120,7 +134,7 @@ export function BootLoader({ done }: { done: boolean }) {
           if (videoRef.current) videoRef.current.playbackRate = 2.2;
         }}
         onEnded={finish}
-        className="h-36 w-36 object-contain md:h-48 md:w-48"
+        className="relative z-10 h-36 w-36 object-contain sm:h-40 sm:w-40 md:h-48 md:w-48 [filter:invert(1)_hue-rotate(180deg)] [mix-blend-mode:screen]"
       />
     </div>
   );
