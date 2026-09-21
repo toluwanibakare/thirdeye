@@ -23,7 +23,7 @@ export function getApiUrl(): string {
       return '';
     }
 
-    return envUrl ? envUrl.replace(/\/+$/, '') : '';
+    return envUrl ? envUrl.replace(/\/+$/, '') : 'http://localhost:4000';
   }
 
   if (process.env.VERCEL_URL) {

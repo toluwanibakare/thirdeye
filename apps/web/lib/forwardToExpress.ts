@@ -20,6 +20,26 @@ export async function forwardToExpress(app: Express, request: Request): Promise<
     bodyBuffer = Buffer.alloc(0);
   }
 
+  // First try proxying to standalone Express server on port 4000 if running
+  try {
+    const targetUrl = `http://localhost:4000${pathWithQuery}`;
+    const headers = new Headers();
+    request.headers.forEach((val, key) => {
+      if (key.toLowerCase() !== 'host') headers.set(key, val);
+    });
+
+    const proxyRes = await fetch(targetUrl, {
+      method: request.method,
+      headers,
+      body: ['GET', 'HEAD'].includes(request.method) || bodyBuffer.length === 0 ? undefined : new Uint8Array(bodyBuffer),
+      cache: 'no-store',
+    });
+
+    return proxyRes;
+  } catch {
+    /* Fallback to in-process Express app handler if port 4000 is unreachable */
+  }
+
   return new Promise<Response>((resolve, reject) => {
     // Construct readable stream compatible with Node IncomingMessage
     const req = new Readable({
