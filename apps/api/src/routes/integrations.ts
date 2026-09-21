@@ -73,50 +73,28 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
       }
 
       const { data, error } = await query;
-      if (!error && data) {
+      if (!error && data && data.length > 0) {
         list = data.map(formatIntegration);
       }
     }
 
-    if (!isSupabaseConfigured && list.length === 0) {
-      const profiles = await getAllTrustProfiles();
-      list = profiles.map(profile => ({
-        id: profile.id,
-        name: profile.name,
-        purpose: profile.purpose,
-        status: fallbackIntegrations[profile.id]?.status || 'ACTIVE',
-        risk_score: fallbackIntegrations[profile.id]?.risk_score ?? 0,
-        riskScore: fallbackIntegrations[profile.id]?.riskScore ?? 0,
-        expected_request_rate: profile.expectedRequestRate,
-        expectedRequestRate: profile.expectedRequestRate,
-        currentRequestRate: profile.expectedRequestRate,
-        requestsPerMin: profile.expectedRequestRate,
-        allowed_endpoints: profile.allowedEndpoints,
-        allowedEndpoints: profile.allowedEndpoints,
-        allowed_methods: profile.allowedMethods,
-        allowedMethods: profile.allowedMethods,
-        allowed_data: profile.allowedData,
-        allowedData: profile.allowedData,
-        forbidden_data: profile.forbiddenData,
-        forbiddenData: profile.forbiddenData,
-        created_at: fallbackIntegrations[profile.id]?.created_at || new Date().toISOString(),
-        updated_at: fallbackIntegrations[profile.id]?.updated_at || new Date().toISOString(),
-        lastActivity: fallbackIntegrations[profile.id]?.updated_at || new Date().toISOString(),
-      }));
+    // Always fallback to memory integrationRegistry if list is empty
+    if (list.length === 0 && Object.keys(integrationRegistry).length > 0) {
+      list = Object.values(integrationRegistry).map(formatIntegration);
       if (status) {
         const filterStatus = String(status).toUpperCase();
         list = list.filter(i => i.status === filterStatus);
       }
       if (sort === 'rate') {
-        list.sort((a, b) => b.expectedRequestRate - a.expectedRequestRate);
+        list.sort((a, b) => (b.expectedRequestRate || 0) - (a.expectedRequestRate || 0));
       } else if (sort === 'name') {
         list.sort((a, b) => a.name.localeCompare(b.name));
       } else {
-        list.sort((a, b) => b.riskScore - a.riskScore);
+        list.sort((a, b) => (b.riskScore || 0) - (a.riskScore || 0));
       }
     }
 
-    if (search) {
+    if (search && list.length > 0) {
       const q = String(search).toLowerCase();
       list = list.filter(
         i =>
