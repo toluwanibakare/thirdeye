@@ -1,5 +1,4 @@
 'use client';
-export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { Icon, paths } from '@/components/icons';
 import { showToast } from '@/components/NotificationToast';
