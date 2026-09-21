@@ -49,6 +49,35 @@ function formatIntegration(item: any) {
   };
 }
 
+const CLOUD_STORE_URL = 'https://api.restful-api.dev/objects/ff808181a09d98f701a0c5f9066765e7';
+
+async function getCloudIntegrations(): Promise<any[]> {
+  try {
+    const res = await fetch(CLOUD_STORE_URL, { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json?.data?.integrations)) {
+        return json.data.integrations;
+      }
+    }
+  } catch (e) {
+    console.error('[integrations] cloud fetch error:', e);
+  }
+  return [];
+}
+
+async function saveCloudIntegrations(list: any[]) {
+  try {
+    await fetch(CLOUD_STORE_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'ThirdEye Demo State', data: { integrations: list } }),
+    });
+  } catch (e) {
+    console.error('[integrations] cloud save error:', e);
+  }
+}
+
 /**
  * GET /api/integrations
  * Retrieves all registered integrations with optional status, search, and sort filters
@@ -78,7 +107,15 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
       }
     }
 
-    // Always fallback to memory integrationRegistry if list is empty
+    // Check cloud persistence store if database list is empty
+    if (list.length === 0) {
+      const cloudData = await getCloudIntegrations();
+      if (cloudData && cloudData.length > 0) {
+        list = cloudData.map(formatIntegration);
+      }
+    }
+
+    // Fallback to memory integrationRegistry if list is still empty
     if (list.length === 0 && Object.keys(integrationRegistry).length > 0) {
       list = Object.values(integrationRegistry).map(formatIntegration);
       if (status) {
@@ -372,6 +409,10 @@ integrationsRouter.post('/seed-storex', async (req: Request, res: Response) => {
     }
   }
 
+  // Sync to cloud persistence store
+  const allFormatted = Object.values(integrationRegistry).map(formatIntegration);
+  await saveCloudIntegrations(allFormatted);
+
   return res.status(200).json({
     success: true,
     projectKey: projectKey || 'te_proj_storex_99a8b7c6',
@@ -389,6 +430,7 @@ integrationsRouter.post('/clear', async (req: Request, res: Response) => {
     delete integrationRegistry[k];
     delete fallbackIntegrations[k];
   }
+  await saveCloudIntegrations([]);
   if (isSupabaseConfigured) {
     try {
       await supabase.from('integrations').delete().neq('id', '___none___');
