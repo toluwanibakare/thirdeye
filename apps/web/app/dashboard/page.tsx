@@ -254,24 +254,47 @@ export default function Dashboard() {
             <TrustGauge items={items} quarantined={quarantineCount} />
           </div>
 
-          {/* Card 5: Gradient Quick Action Banner */}
+          {/* Card 5: Gradient Quick Action / Active Shield Banner */}
           <div className="panel p-6 bg-gradient-to-br from-[#5B50E6] via-[#7B2CBF] to-[#9D4EDD] rounded-3xl flex flex-col justify-between text-white shadow-xl shadow-[#5B50E6]/30">
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full">
-                ThirdEye Shield
-              </span>
-              <h3 className="text-[22px] font-extrabold mt-3 leading-snug">Connect New Project</h3>
-              <p className="text-[13px] text-white/80 mt-2 leading-relaxed">
-                Protect any store or web application with ThirdEye Custom Gateway proxy.
-              </p>
-            </div>
+            {items.length > 0 ? (
+              <>
+                <div>
+                  <span className="text-[10.5px] font-mono font-bold uppercase tracking-wider bg-[#10B981]/25 text-[#10B981] border border-[#10B981]/40 px-2.5 py-1 rounded-full">
+                    ACTIVE SHIELD ENFORCED
+                  </span>
+                  <h3 className="text-[20px] font-extrabold mt-3 leading-snug">StoreX Store Connected</h3>
+                  <p className="text-[12.5px] text-white/80 mt-2 leading-relaxed">
+                    Gateway key <code className="mono-num text-[#00CEC9]">te_proj_storex_99a8b7c6</code> active. Enforcing real-time PII &amp; rate verification.
+                  </p>
+                </div>
 
-            <button
-              onClick={() => showToast('Connect Project', 'Opening Project Setup wizard on Integrations Marketplace.', 'info')}
-              className="mt-5 w-full rounded-2xl bg-[#FF2A6D] py-3 text-[14px] font-bold text-white shadow-lg shadow-[#FF2A6D]/40 transition-transform active:scale-95 hover:brightness-110"
-            >
-              Connect Project Now →
-            </button>
+                <Link
+                  href="/integrations"
+                  className="mt-5 block w-full text-center rounded-2xl bg-white/10 hover:bg-white/20 py-2.5 text-[13px] font-bold text-white border border-white/20 transition-all"
+                >
+                  Manage Connectors ({items.length}) →
+                </Link>
+              </>
+            ) : (
+              <>
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full">
+                    ThirdEye Shield
+                  </span>
+                  <h3 className="text-[22px] font-extrabold mt-3 leading-snug">Connect New Project</h3>
+                  <p className="text-[13px] text-white/80 mt-2 leading-relaxed">
+                    Protect any store or web application with ThirdEye Custom Gateway proxy.
+                  </p>
+                </div>
+
+                <Link
+                  href="/integrations"
+                  className="mt-5 block w-full text-center rounded-2xl bg-[#FF2A6D] py-3 text-[14px] font-bold text-white shadow-lg shadow-[#FF2A6D]/40 transition-transform active:scale-95 hover:brightness-110"
+                >
+                  Connect Project Now →
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
