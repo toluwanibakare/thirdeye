@@ -361,13 +361,13 @@ function IntegrationsInner() {
                 </button>
 
                 {showDevMenu && (
-                  <div className="absolute right-0 top-full mt-2 z-[60] w-56 rounded-2xl border border-white/15 bg-[#0E1A33] p-2 shadow-2xl backdrop-blur-xl animate-rise">
+                  <div className="absolute right-0 top-full mt-2 z-[100] w-56 rounded-2xl border border-white/20 bg-[#0A1224] p-2 shadow-2xl backdrop-blur-2xl animate-rise">
                     <button
                       onClick={() => {
                         setShowDevMenu(false);
                         setShowAutoDiscoverModal(true);
                       }}
-                      className="w-full text-left rounded-xl px-3 py-2 text-[12.5px] font-semibold text-[#00C8D7] hover:bg-white/5 flex items-center gap-2"
+                      className="w-full text-left rounded-xl px-3 py-2 text-[12.5px] font-semibold text-[#00C8D7] hover:bg-white/10 flex items-center gap-2"
                     >
                       Auto-Discover via URL
                     </button>
@@ -382,7 +382,7 @@ function IntegrationsInner() {
                           showToast('Reset Error', 'Failed to clear integrations.', 'alert');
                         }
                       }}
-                      className="w-full text-left rounded-xl px-3 py-2 text-[12.5px] font-semibold text-[#FF4D4F] hover:bg-white/5 flex items-center gap-2 border-t border-white/10 mt-1 pt-2"
+                      className="w-full text-left rounded-xl px-3 py-2 text-[12.5px] font-semibold text-[#FF4D4F] hover:bg-white/10 flex items-center gap-2 border-t border-white/10 mt-1 pt-2"
                     >
                       Reset (0 Integrations)
                     </button>
@@ -394,10 +394,8 @@ function IntegrationsInner() {
         </div>
       </div>
 
-
-
       {/* ═══ Connected Project Status Banner ═══ */}
-      <div className="panel relative overflow-hidden p-5 border-white/15 bg-gradient-to-r from-[#0E1A33] via-[#0A1224] to-[#0E1A33]">
+      <div className="panel p-5 border-white/15 bg-gradient-to-r from-[#0E1A33] via-[#0A1224] to-[#0E1A33]">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#1677FF]/40 bg-[#1677FF]/15 text-[#5B9CFF]">
@@ -424,37 +422,6 @@ function IntegrationsInner() {
                 </span>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => setShowConnectProjectModal(true)}
-              className="btn-ghost !px-3.5 !py-2 !text-[12.5px] border-white/15"
-            >
-              Configure Project / Switch
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  await fetch('/api/integrations/seed-storex', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      projectKey: 'te_proj_storex_99a8b7c6',
-                      integrations: MARKETPLACE_CATALOG,
-                    }),
-                  });
-                  showToast('Agent Connection Established', 'Connected StoreX project integrations to ThirdEye Engine!', 'success');
-                  const r = await apiSafe<IntegrationRow[]>('/api/integrations', []);
-                  setItems(r.data.map(normaliseIntegration));
-                } catch {
-                  showToast('Connection Error', 'Failed to connect integrations.', 'alert');
-                }
-              }}
-              className="btn-accent !px-4 !py-2 !text-[12.5px]"
-            >
-              Connect API via Agent →
-            </button>
-          </div>
         </div>
       </div>
 
@@ -933,7 +900,7 @@ const thirdeye = new ThirdEye({
                   }}
                   className="btn-accent !px-5 !py-2 !text-[13px] border-[#19D98A] bg-[#19D98A] text-black hover:bg-[#19D98A]/90"
                 >
-                  Confirm & Register Trust Profile →
+                  Confirm and Register Trust Profile →
                 </button>
               )}
             </div>
