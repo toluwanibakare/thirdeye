@@ -238,8 +238,8 @@ export default function EventsPage() {
         <div className="relative z-10">
           {shown.length === 0 ? (
             <EmptyState
-              title="No events for this filter"
-              body="Traffic here is clean. Try another integration."
+              title={events.length === 0 ? "No security activity recorded" : "No events for this filter"}
+              body={events.length === 0 ? "No integration connected. Go over to your project and connect." : "Traffic here is clean. Try another integration."}
             />
           ) : (
             <EventTimeline events={shown} />

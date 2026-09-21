@@ -490,7 +490,10 @@ function IntegrationsInner() {
           </div>
 
           {filtered.length === 0 ? (
-            <EmptyState title="No integrations match" body="Try a different search query or status filter." />
+            <EmptyState
+              title={items.length === 0 ? "No integrations connected" : "No integrations match"}
+              body={items.length === 0 ? "No integration connected. Go over to your project and connect." : "Try a different search query or status filter."}
+            />
           ) : view === 'table' ? (
             <div className="section-card overflow-hidden !p-0">
               <IntegrationTable items={filtered} />
