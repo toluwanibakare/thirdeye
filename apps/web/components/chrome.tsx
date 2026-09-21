@@ -82,7 +82,7 @@ export function BootLoader({ done }: { done?: boolean }) {
     setFading(true);
     setTimeout(() => {
       setShow(false);
-    }, 350);
+    }, 200);
   }, []);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export function BootLoader({ done }: { done?: boolean }) {
   useEffect(() => {
     const fallback = setTimeout(() => {
       finish();
-    }, 3200);
+    }, 600);
     return () => clearTimeout(fallback);
   }, [finish]);
 
