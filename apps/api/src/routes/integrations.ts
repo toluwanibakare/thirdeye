@@ -359,6 +359,9 @@ integrationsRouter.post('/seed-storex', async (req: Request, res: Response) => {
   const { projectKey, integrations } = req.body || {};
   const list = Array.isArray(integrations) ? integrations : [];
 
+  const existingCloud = await getCloudIntegrations();
+  const existingMap = new Map(existingCloud.map(item => [item.id, item]));
+
   for (const item of list) {
     const id = item.id || `storex_${item.name.toLowerCase().replace(/\s+/g, '_')}`;
     const formatted: any = {
@@ -386,6 +389,7 @@ integrationsRouter.post('/seed-storex', async (req: Request, res: Response) => {
     };
     integrationRegistry[id] = formatted;
     fallbackIntegrations[id] = formatted;
+    existingMap.set(id, formatIntegration(formatted));
 
     if (isSupabaseConfigured) {
       try {
@@ -409,9 +413,9 @@ integrationsRouter.post('/seed-storex', async (req: Request, res: Response) => {
     }
   }
 
-  // Sync to cloud persistence store
-  const allFormatted = Object.values(integrationRegistry).map(formatIntegration);
-  await saveCloudIntegrations(allFormatted);
+  // Sync merged list to cloud persistence store
+  const mergedList = Array.from(existingMap.values());
+  await saveCloudIntegrations(mergedList);
 
   return res.status(200).json({
     success: true,

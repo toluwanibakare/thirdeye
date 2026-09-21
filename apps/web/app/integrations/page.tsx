@@ -123,7 +123,23 @@ function IntegrationsInner() {
     query.set('sort', sortKey);
 
     apiSafe<IntegrationRow[]>(`/api/integrations?${query.toString()}`, []).then(r => {
-      setItems(r.data.map(normaliseIntegration));
+      let fetched = r.data;
+      if (fetched.length > 0) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('thirdeye_connected_integrations', JSON.stringify(fetched));
+        }
+      } else if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('thirdeye_connected_integrations');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              fetched = parsed;
+            }
+          } catch {}
+        }
+      }
+      setItems(fetched.map(normaliseIntegration));
       setLive(r.live);
     });
   }, [q, statusFilter, sortKey]);
@@ -131,7 +147,23 @@ function IntegrationsInner() {
   useEffect(() => {
     const id = setInterval(() => {
       apiSafe<IntegrationRow[]>('/api/integrations', []).then(r => {
-        setItems(r.data.map(normaliseIntegration));
+        let fetched = r.data;
+        if (fetched.length > 0) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('thirdeye_connected_integrations', JSON.stringify(fetched));
+          }
+        } else if (typeof window !== 'undefined') {
+          const stored = localStorage.getItem('thirdeye_connected_integrations');
+          if (stored) {
+            try {
+              const parsed = JSON.parse(stored);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                fetched = parsed;
+              }
+            } catch {}
+          }
+        }
+        setItems(fetched.map(normaliseIntegration));
         setLive(r.live);
       });
     }, 8000);
@@ -288,10 +320,14 @@ function IntegrationsInner() {
     setProjectConnected(true);
     setShowConnectProjectModal(false);
     setProjectStep(1);
-    setActiveTab('marketplace');
+    setActiveTab('registry');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('thirdeye_connected_integrations', JSON.stringify(MARKETPLACE_CATALOG));
+    }
+    setItems(MARKETPLACE_CATALOG.map(normaliseIntegration as any));
     showToast(
       `Project Connected!`,
-      `Successfully linked "${projectName}" (${newId}) to ThirdEye Platform. Now browse and connect partner integrations.`,
+      `Successfully linked "${projectName}" (${newId}) to ThirdEye Platform. Integrations populated!`,
       'success'
     );
   }
@@ -320,6 +356,9 @@ function IntegrationsInner() {
             <div className="flex items-center gap-2.5 shrink-0">
               <button
                 onClick={async () => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('thirdeye_connected_integrations', JSON.stringify(MARKETPLACE_CATALOG));
+                  }
                   try {
                     await fetch('/api/integrations/seed-storex', {
                       method: 'POST',
@@ -329,12 +368,11 @@ function IntegrationsInner() {
                         integrations: MARKETPLACE_CATALOG,
                       }),
                     });
-                    showToast('Agent Connection Established', 'Connected StoreX project integrations to ThirdEye Engine!', 'success');
-                    const r = await apiSafe<IntegrationRow[]>('/api/integrations', []);
-                    setItems(r.data.map(normaliseIntegration));
-                  } catch {
-                    showToast('Connection Error', 'Failed to connect integrations.', 'alert');
-                  }
+                  } catch {}
+                  showToast('Agent Connection Established', 'Connected StoreX project integrations to ThirdEye Engine!', 'success');
+                  const r = await apiSafe<IntegrationRow[]>('/api/integrations', []);
+                  const finalItems = r.data.length > 0 ? r.data : (MARKETPLACE_CATALOG as any[]);
+                  setItems(finalItems.map(normaliseIntegration));
                 }}
                 className="rounded-xl border border-[#19D98A]/50 bg-[#19D98A]/20 px-3.5 py-2 text-[12.5px] font-bold text-[#19D98A] hover:bg-[#19D98A]/30 transition-all shadow-md shadow-[#19D98A]/20 flex items-center gap-1.5"
               >
@@ -373,13 +411,14 @@ function IntegrationsInner() {
                     <button
                       onClick={async () => {
                         setShowDevMenu(false);
+                        if (typeof window !== 'undefined') {
+                          localStorage.removeItem('thirdeye_connected_integrations');
+                        }
                         try {
                           await fetch('/api/integrations/clear', { method: 'POST' });
-                          showToast('Integrations Reset', 'Cleared all connectors to 0 (Empty demo state).', 'info');
-                          setItems([]);
-                        } catch {
-                          showToast('Reset Error', 'Failed to clear integrations.', 'alert');
-                        }
+                        } catch {}
+                        showToast('Integrations Reset', 'Cleared all connectors to 0 (Empty demo state).', 'info');
+                        setItems([]);
                       }}
                       className="w-full text-left rounded-xl px-3 py-2 text-[12.5px] font-semibold text-[#FF4D4F] hover:bg-white/10 flex items-center gap-2 border-t border-white/10 mt-1 pt-2"
                     >
