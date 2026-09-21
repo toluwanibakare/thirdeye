@@ -319,7 +319,17 @@ export function IntegrationMap({
               const controlY2 = endY - 45;
               const pathD = `M ${portX} ${startY} C ${portX} ${controlY1}, ${destX} ${controlY2}, ${destX} ${endY}`;
 
-              const nodeName = it.name.replace(' Provider', '').replace(' Sync', '').toUpperCase();
+              let cleanName = it.name
+                .replace(/\s*\(3-Yr Legacy Trial\)/gi, '')
+                .replace(/\s*AI Agent Skill/gi, '')
+                .replace(/\s*Autonomous Agent Skill/gi, '')
+                .replace(/\s*Provider/gi, '')
+                .replace(/\s*Sync/gi, '')
+                .trim();
+              if (cleanName.length > 18) {
+                cleanName = cleanName.substring(0, 17) + '…';
+              }
+              const nodeName = cleanName.toUpperCase();
               const statusLabel = isCritical
                 ? 'CRITICAL'
                 : isHigh
@@ -369,6 +379,7 @@ export function IntegrationMap({
                       e.currentTarget.style.filter = '';
                     }}
                   >
+                    <title>{it.name}</title>
                     {/* Card Shadow and Background */}
                     <rect
                       width={cardW}
