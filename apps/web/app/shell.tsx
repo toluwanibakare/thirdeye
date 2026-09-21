@@ -147,6 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   alt="ThirdEye"
                   width={120}
                   height={40}
+                  style={{ width: 'auto', height: 'auto' }}
                   className="h-10 w-auto object-contain transition-transform group-active:scale-95"
                   onError={() => setLogoOk(false)}
                   priority

@@ -18,8 +18,8 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-noise min-h-screen font-sans text-ink antialiased selection:bg-brand selection:text-white">
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-noise min-h-screen font-sans text-ink antialiased selection:bg-brand selection:text-white" suppressHydrationWarning>
         <AppShell>{children}</AppShell>
       </body>
     </html>
