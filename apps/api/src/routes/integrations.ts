@@ -89,6 +89,13 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
     let list: any[] = [];
     const itemMap = new Map<string, any>();
 
+    // Start with memory integrationRegistry (includes default StoreX connectors)
+    if (Object.keys(integrationRegistry).length > 0) {
+      Object.values(integrationRegistry).forEach(item => {
+        itemMap.set(item.id, formatIntegration(item));
+      });
+    }
+
     if (isSupabaseConfigured) {
       try {
         let query = supabase.from('integrations').select('*');
@@ -107,14 +114,6 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
     const cloudData = await getCloudIntegrations();
     if (cloudData && cloudData.length > 0) {
       cloudData.forEach(item => {
-        if (!itemMap.has(item.id)) {
-          itemMap.set(item.id, formatIntegration(item));
-        }
-      });
-    }
-
-    if (itemMap.size === 0 && Object.keys(integrationRegistry).length > 0) {
-      Object.values(integrationRegistry).forEach(item => {
         if (!itemMap.has(item.id)) {
           itemMap.set(item.id, formatIntegration(item));
         }
