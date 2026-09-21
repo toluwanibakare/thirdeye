@@ -187,10 +187,10 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
     let list: any[] = [];
     const itemMap = new Map<string, any>();
 
-    // Start with all 5 default StoreX connectors
+    // Start with all 5 default StoreX connectors (all risk_score: 8, TRUSTED)
     DEFAULT_CONNECTORS_LIST.forEach(item => itemMap.set(item.id, formatIntegration(item)));
 
-    // Include any in-memory additions
+    // Include any in-memory runtime updates (e.g. attack simulation / quarantine triggers)
     if (Object.keys(integrationRegistry).length > 0) {
       Object.values(integrationRegistry).forEach(item => {
         itemMap.set(item.id, formatIntegration(item));
@@ -210,15 +210,6 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
       } catch (e) {
         console.error('[integrations] Supabase get error:', e);
       }
-    }
-
-    const cloudData = await getCloudIntegrations();
-    if (cloudData && cloudData.length > 0) {
-      cloudData.forEach(item => {
-        if (!itemMap.has(item.id)) {
-          itemMap.set(item.id, formatIntegration(item));
-        }
-      });
     }
 
     list = Array.from(itemMap.values());
