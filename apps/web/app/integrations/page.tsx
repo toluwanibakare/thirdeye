@@ -317,21 +317,57 @@ function IntegrationsInner() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
-                onClick={() => setShowAutoDiscoverModal(true)}
-                className="rounded-xl border border-[#00C8D7]/40 bg-[#00C8D7]/15 px-4 py-2 text-[13px] font-bold text-[#00C8D7] hover:bg-[#00C8D7]/25 transition-all shadow-md shadow-[#00C8D7]/20 flex items-center gap-1.5"
+                onClick={async () => {
+                  try {
+                    await fetch('/api/integrations/seed-storex', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        projectKey: 'te_proj_storex_99a8b7c6',
+                        integrations: MARKETPLACE_CATALOG,
+                      }),
+                    });
+                    showToast('Agent Connection Established', 'Connected StoreX project integrations to ThirdEye Engine!', 'success');
+                    const r = await apiSafe<IntegrationRow[]>('/api/integrations', []);
+                    setItems(r.data.map(normaliseIntegration));
+                  } catch {
+                    showToast('Connection Error', 'Failed to connect integrations.', 'error');
+                  }
+                }}
+                className="rounded-xl border border-[#19D98A]/50 bg-[#19D98A]/20 px-3.5 py-2 text-[12.5px] font-bold text-[#19D98A] hover:bg-[#19D98A]/30 transition-all shadow-md shadow-[#19D98A]/20 flex items-center gap-1.5"
               >
-                ⚡ Auto-Discover via API Link
+                🤖 Connect Agent Skill
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await fetch('/api/integrations/clear', { method: 'POST' });
+                    showToast('Integrations Cleared', 'Reset to 0 integrations (Empty initial demo state).', 'info');
+                    setItems([]);
+                  } catch {
+                    showToast('Reset Error', 'Failed to clear integrations.', 'error');
+                  }
+                }}
+                className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-semibold text-[#8494AD] hover:text-white transition-all"
+              >
+                ⚡ Reset (Empty Demo State)
+              </button>
+              <button
+                onClick={() => setShowAutoDiscoverModal(true)}
+                className="rounded-xl border border-[#00C8D7]/40 bg-[#00C8D7]/15 px-3.5 py-2 text-[12.5px] font-bold text-[#00C8D7] hover:bg-[#00C8D7]/25 transition-all shadow-md shadow-[#00C8D7]/20 flex items-center gap-1.5"
+              >
+                ⚡ Auto-Discover URL
               </button>
               <button
                 onClick={() => setShowConnectProjectModal(true)}
-                className="btn-accent flex items-center gap-2 !px-4 !py-2 !text-[13px] shadow-lg shadow-[#1677FF]/20"
+                className="btn-accent flex items-center gap-2 !px-3.5 !py-2 !text-[12.5px] shadow-lg shadow-[#1677FF]/20"
               >
-                <Icon d={paths.plus} size={15} />
-                Connect Project to Platform
+                <Icon d={paths.plus} size={14} />
+                Connect Project
               </button>
               <button
                 onClick={() => setActiveTab('registry')}
-                className={`rounded-xl border px-4 py-2 text-[13px] font-semibold transition-colors ${
+                className={`rounded-xl border px-3.5 py-2 text-[12.5px] font-semibold transition-colors ${
                   activeTab === 'registry'
                     ? 'border-[#1677FF] bg-[#1677FF] text-white'
                     : 'border-white/10 bg-white/5 text-[#93A1B8]'
@@ -341,7 +377,7 @@ function IntegrationsInner() {
               </button>
               <button
                 onClick={() => setActiveTab('marketplace')}
-                className={`rounded-xl border px-4 py-2 text-[13px] font-semibold transition-colors flex items-center gap-1.5 ${
+                className={`rounded-xl border px-3.5 py-2 text-[12.5px] font-semibold transition-colors flex items-center gap-1.5 ${
                   activeTab === 'marketplace'
                     ? 'border-[#1677FF] bg-[#1677FF] text-white'
                     : 'border-white/10 bg-white/5 text-[#93A1B8]'

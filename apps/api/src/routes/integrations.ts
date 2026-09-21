@@ -337,6 +337,63 @@ integrationsRouter.post('/', async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/integrations/seed-storex
+ * Seed/Connect StoreX discovered integrations into ThirdEye registry
+ */
+integrationsRouter.post('/seed-storex', async (req: Request, res: Response) => {
+  const { projectKey, integrations } = req.body || {};
+  const list = Array.isArray(integrations) ? integrations : [];
+
+  list.forEach((item: any) => {
+    const id = item.id || `storex_${item.name.toLowerCase().replace(/\s+/g, '_')}`;
+    const formatted: any = {
+      id,
+      name: item.name,
+      purpose: item.purpose || `${item.category || 'Third-Party'} connector for StoreX`,
+      status: 'ACTIVE',
+      risk_score: item.id === 'segment_analytics' ? 88 : item.id === 'klaviyo_marketing' ? 76 : item.id === 'storex_sales_agent_skill' ? 82 : 8,
+      riskScore: item.id === 'segment_analytics' ? 88 : item.id === 'klaviyo_marketing' ? 76 : item.id === 'storex_sales_agent_skill' ? 82 : 8,
+      expected_request_rate: item.expectedRate || 100,
+      expectedRequestRate: item.expectedRate || 100,
+      currentRequestRate: item.expectedRate || 100,
+      allowed_endpoints: item.allowedEndpoints || [],
+      allowedEndpoints: item.allowedEndpoints || [],
+      allowed_methods: item.allowedMethods || ['GET', 'POST'],
+      allowedMethods: item.allowedMethods || ['GET', 'POST'],
+      allowed_data: item.allowedData || [],
+      allowedData: item.allowedData || [],
+      forbidden_data: item.forbiddenData || [],
+      forbiddenData: item.forbiddenData || [],
+      api_key: `sec_storex_${id}_key`,
+      testApiKey: `sec_storex_${id}_key`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    integrationRegistry[id] = formatted;
+    fallbackIntegrations[id] = formatted;
+  });
+
+  return res.status(200).json({
+    success: true,
+    projectKey: projectKey || 'te_proj_storex_99a8b7c6',
+    count: list.length,
+    message: 'StoreX project integrations successfully registered in ThirdEye!',
+  });
+});
+
+/**
+ * POST /api/integrations/clear
+ * Clear all integrations for demo initial state
+ */
+integrationsRouter.post('/clear', async (req: Request, res: Response) => {
+  for (const k of Object.keys(integrationRegistry)) {
+    delete integrationRegistry[k];
+    delete fallbackIntegrations[k];
+  }
+  return res.status(200).json({ success: true, count: 0, message: 'Integrations cleared for demo.' });
+});
+
+/**
  * PATCH /api/integrations/:id
  * Updates mutable fields such as expected rate or purpose
  */
