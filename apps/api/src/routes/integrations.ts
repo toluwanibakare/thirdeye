@@ -87,48 +87,52 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
 
   try {
     let list: any[] = [];
+    const itemMap = new Map<string, any>();
 
     if (isSupabaseConfigured) {
-      let query = supabase.from('integrations').select('*');
-      if (status) {
-        query = query.eq('status', String(status).toUpperCase());
-      }
-      if (sort === 'rate') {
-        query = query.order('expected_request_rate', { ascending: false });
-      } else if (sort === 'name') {
-        query = query.order('name', { ascending: true });
-      } else {
-        query = query.order('risk_score', { ascending: false });
-      }
-
-      const { data, error } = await query;
-      if (!error && data && data.length > 0) {
-        list = data.map(formatIntegration);
+      try {
+        let query = supabase.from('integrations').select('*');
+        if (status) {
+          query = query.eq('status', String(status).toUpperCase());
+        }
+        const { data, error } = await query;
+        if (!error && data && data.length > 0) {
+          data.forEach(item => itemMap.set(item.id, formatIntegration(item)));
+        }
+      } catch (e) {
+        console.error('[integrations] Supabase get error:', e);
       }
     }
 
-    // Check cloud persistence store if database list is empty
-    if (list.length === 0) {
-      const cloudData = await getCloudIntegrations();
-      if (cloudData && cloudData.length > 0) {
-        list = cloudData.map(formatIntegration);
-      }
+    const cloudData = await getCloudIntegrations();
+    if (cloudData && cloudData.length > 0) {
+      cloudData.forEach(item => {
+        if (!itemMap.has(item.id)) {
+          itemMap.set(item.id, formatIntegration(item));
+        }
+      });
     }
 
-    // Fallback to memory integrationRegistry if list is still empty
-    if (list.length === 0 && Object.keys(integrationRegistry).length > 0) {
-      list = Object.values(integrationRegistry).map(formatIntegration);
-      if (status) {
-        const filterStatus = String(status).toUpperCase();
-        list = list.filter(i => i.status === filterStatus);
-      }
-      if (sort === 'rate') {
-        list.sort((a, b) => (b.expectedRequestRate || 0) - (a.expectedRequestRate || 0));
-      } else if (sort === 'name') {
-        list.sort((a, b) => a.name.localeCompare(b.name));
-      } else {
-        list.sort((a, b) => (b.riskScore || 0) - (a.riskScore || 0));
-      }
+    if (itemMap.size === 0 && Object.keys(integrationRegistry).length > 0) {
+      Object.values(integrationRegistry).forEach(item => {
+        if (!itemMap.has(item.id)) {
+          itemMap.set(item.id, formatIntegration(item));
+        }
+      });
+    }
+
+    list = Array.from(itemMap.values());
+
+    if (status) {
+      const filterStatus = String(status).toUpperCase();
+      list = list.filter(i => i.status === filterStatus);
+    }
+    if (sort === 'rate') {
+      list.sort((a, b) => (b.expectedRequestRate || 0) - (a.expectedRequestRate || 0));
+    } else if (sort === 'name') {
+      list.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      list.sort((a, b) => (b.riskScore || 0) - (a.riskScore || 0));
     }
 
     if (search && list.length > 0) {
