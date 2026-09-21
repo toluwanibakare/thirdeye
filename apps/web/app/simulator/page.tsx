@@ -421,48 +421,98 @@ export default function SimulatorPage() {
         </div>
       </div>
 
-      {/* Live Integration Health Monitor (Normal vs Misbehaving) */}
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl border border-[#19D98A]/30 bg-[#19D98A]/5 p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#19D98A] uppercase tracking-wider flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#19D98A] animate-pulse" />
-              🟢 BEHAVING NORMALLY (2 INTEGRATIONS)
-            </span>
-            <span className="chip !text-[10px] !border-[#19D98A]/30 !bg-[#19D98A]/10 !text-[#19D98A]">RISK SCORE 5-12</span>
-          </div>
-          <div className="space-y-1.5 text-[12.5px] text-white">
-            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
-              <span>💳 <strong>Stripe Payments</strong> (<code className="text-[#5B9CFF]">payment_001</code>)</span>
-              <span className="text-[#19D98A] font-bold text-[11px]">ACTIVE · 0 Violations</span>
+      {/* Live Integration Health Monitor (Dynamic Normal vs Misbehaving) */}
+      {(() => {
+        const normalItems = integrations.filter(i => i.status !== 'QUARANTINED');
+        const driftingItems = integrations.filter(i => i.status === 'QUARANTINED');
+        return (
+          <div className="grid gap-3 md:grid-cols-2">
+            {/* Behaving Normally Card */}
+            <div className="rounded-2xl border border-[#19D98A]/30 bg-[#19D98A]/5 p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-[#19D98A] uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[#19D98A] animate-pulse" />
+                  BEHAVING NORMALLY ({normalItems.length} INTEGRATIONS)
+                </span>
+                <span className="chip !text-[10px] !border-[#19D98A]/30 !bg-[#19D98A]/10 !text-[#19D98A]">
+                  RISK SCORE 5-12
+                </span>
+              </div>
+              <div className="space-y-1.5 text-[12.5px] text-white">
+                {normalItems.length === 0 ? (
+                  <div className="text-[12px] text-[#8494AD] py-2 text-center">
+                    No active integrations connected yet.
+                  </div>
+                ) : (
+                  normalItems.map(it => (
+                    <div
+                      key={it.id}
+                      className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5"
+                    >
+                      <span>
+                        <strong>{it.name}</strong> (<code className="text-[#5B9CFF]">{it.id}</code>)
+                      </span>
+                      <span className="text-[#19D98A] font-bold text-[11px]">ACTIVE · 0 Violations</span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
-              <span>📦 <strong>ShipFast Logistics</strong> (<code className="text-[#5B9CFF]">delivery_001</code>)</span>
-              <span className="text-[#19D98A] font-bold text-[11px]">ACTIVE · 0 Violations</span>
-            </div>
-          </div>
-        </div>
 
-        <div className="rounded-2xl border border-[#FF4D5E]/30 bg-[#FF4D5E]/5 p-4 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-[#FF8090] uppercase tracking-wider flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#FF4D5E] animate-ping" />
-              🔴 MISBEHAVING / DRIFTING (3 INTEGRATIONS)
-            </span>
-            <span className="chip !text-[10px] !border-[#FF4D5E]/30 !bg-[#FF4D5E]/10 !text-[#FF8090]">RISK SCORE 75-95</span>
-          </div>
-          <div className="space-y-1.5 text-[12.5px] text-white">
-            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
-              <span>📊 <strong>Segment Analytics</strong> (<code className="text-[#00C8D7]">analytics_001</code>)</span>
-              <span className="text-[#FF8090] font-bold text-[11px]">QUARANTINED · PII Leak</span>
+            {/* Misbehaving / Drifting Card */}
+            <div
+              className={`rounded-2xl border p-4 space-y-2 ${
+                driftingItems.length ? 'border-[#FF4D5E]/30 bg-[#FF4D5E]/5' : 'border-white/10 bg-white/5'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                    driftingItems.length ? 'text-[#FF8090]' : 'text-[#8494AD]'
+                  }`}
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      driftingItems.length ? 'bg-[#FF4D5E] animate-ping' : 'bg-slate-500'
+                    }`}
+                  />
+                  MISBEHAVING / DRIFTING ({driftingItems.length} INTEGRATIONS)
+                </span>
+                <span
+                  className={`chip !text-[10px] ${
+                    driftingItems.length
+                      ? '!border-[#FF4D5E]/30 !bg-[#FF4D5E]/10 !text-[#FF8090]'
+                      : '!border-white/10 !text-[#8494AD]'
+                  }`}
+                >
+                  {driftingItems.length ? 'RISK SCORE 75-95' : '0 DRIFTING'}
+                </span>
+              </div>
+              <div className="space-y-1.5 text-[12.5px] text-white">
+                {driftingItems.length === 0 ? (
+                  <div className="text-[12px] text-[#8494AD] py-2 text-center">
+                    No drifting integrations detected. System fully protected.
+                  </div>
+                ) : (
+                  driftingItems.map(it => (
+                    <div
+                      key={it.id}
+                      className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-[#FF4D5E]/20"
+                    >
+                      <span>
+                        <strong>{it.name}</strong> (<code className="text-[#00C8D7]">{it.id}</code>)
+                      </span>
+                      <span className="text-[#FF8090] font-bold text-[11px]">
+                        QUARANTINED · PII / Scope Violation
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
-              <span><strong>StoreX Sales AI Agent Skill</strong> (<code className="text-[#00C8D7]">agent_001</code>)</span>
-              <span className="text-[#FF8090] font-bold text-[11px]">QUARANTINED · Prompt Drift</span>
-            </div>
           </div>
-        </div>
-      </div>
+        );
+      })()}
 
       <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
         {/* ═══ Controls ═══ */}
