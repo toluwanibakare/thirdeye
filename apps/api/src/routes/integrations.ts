@@ -78,6 +78,104 @@ async function saveCloudIntegrations(list: any[]) {
   }
 }
 
+const DEFAULT_CONNECTORS_LIST = [
+  {
+    id: 'stripe_pay',
+    name: 'Stripe Payments',
+    purpose: 'Process online checkout payments, card tokens and refunds for StoreX.',
+    status: 'ACTIVE',
+    risk_score: 8,
+    riskScore: 8,
+    expected_request_rate: 150,
+    expectedRequestRate: 150,
+    currentRequestRate: 150,
+    allowed_endpoints: ['/payments', '/refunds'],
+    allowedEndpoints: ['/payments', '/refunds'],
+    allowed_methods: ['POST'],
+    allowedMethods: ['POST'],
+    allowed_data: ['amount', 'currency', 'order_id'],
+    allowedData: ['amount', 'currency', 'order_id'],
+    forbidden_data: ['full_card_number', 'cvv', 'raw_password'],
+    forbiddenData: ['full_card_number', 'cvv', 'raw_password'],
+  },
+  {
+    id: 'fedex_delivery',
+    name: 'ShipFast Logistics',
+    purpose: 'Generate package tracking numbers, shipping rates and dispatch orders.',
+    status: 'ACTIVE',
+    risk_score: 8,
+    riskScore: 8,
+    expected_request_rate: 80,
+    expectedRequestRate: 80,
+    currentRequestRate: 80,
+    allowed_endpoints: ['/orders', '/delivery/shipments'],
+    allowedEndpoints: ['/orders', '/delivery/shipments'],
+    allowed_methods: ['GET', 'POST'],
+    allowedMethods: ['GET', 'POST'],
+    allowed_data: ['order_id', 'recipient_name', 'delivery_address'],
+    allowedData: ['order_id', 'recipient_name', 'delivery_address'],
+    forbidden_data: ['card_number', 'cvv', 'password_hash'],
+    forbiddenData: ['card_number', 'cvv', 'password_hash'],
+  },
+  {
+    id: 'segment_analytics',
+    name: 'Segment Analytics (3-Yr Legacy Trial)',
+    purpose: 'Collect storefront clickstream metrics and user session events.',
+    status: 'ACTIVE',
+    risk_score: 88,
+    riskScore: 88,
+    expected_request_rate: 200,
+    expectedRequestRate: 200,
+    currentRequestRate: 200,
+    allowed_endpoints: ['/analytics/events'],
+    allowedEndpoints: ['/analytics/events'],
+    allowed_methods: ['POST'],
+    allowedMethods: ['POST'],
+    allowed_data: ['anonymous_user_id', 'page', 'event'],
+    allowedData: ['anonymous_user_id', 'page', 'event'],
+    forbidden_data: ['payment_info', 'phone_number', 'customer_address'],
+    forbiddenData: ['payment_info', 'phone_number', 'customer_address'],
+  },
+  {
+    id: 'klaviyo_marketing',
+    name: 'Klaviyo Marketing',
+    purpose: 'Send automated order receipt emails and promo campaign notifications.',
+    status: 'ACTIVE',
+    risk_score: 76,
+    riskScore: 76,
+    expected_request_rate: 95,
+    expectedRequestRate: 95,
+    currentRequestRate: 95,
+    allowed_endpoints: ['/campaigns', '/subscribers'],
+    allowedEndpoints: ['/campaigns', '/subscribers'],
+    allowed_methods: ['POST'],
+    allowedMethods: ['POST'],
+    allowed_data: ['campaign_id', 'email', 'first_name'],
+    allowedData: ['campaign_id', 'email', 'first_name'],
+    forbidden_data: ['payment_details', 'card_cvv'],
+    forbiddenData: ['payment_details', 'card_cvv'],
+  },
+  {
+    id: 'storex_sales_agent_skill',
+    name: 'StoreX Sales AI Agent Skill',
+    purpose: 'Autonomous sales assistant executing checkout recommendations, cart updates & product lookup.',
+    status: 'ACTIVE',
+    risk_score: 82,
+    riskScore: 82,
+    expected_request_rate: 300,
+    expectedRequestRate: 300,
+    currentRequestRate: 300,
+    allowed_endpoints: ['/agent/recommend', '/agent/cart-checkout'],
+    allowedEndpoints: ['/agent/recommend', '/agent/cart-checkout'],
+    allowed_methods: ['POST'],
+    allowedMethods: ['POST'],
+    allowed_data: ['item_sku', 'session_token', 'quantity'],
+    allowedData: ['item_sku', 'session_token', 'quantity'],
+    forbidden_data: ['full_credit_card', 'customer_password_hash'],
+    forbiddenData: ['full_credit_card', 'customer_password_hash'],
+  },
+];
+
 /**
  * GET /api/integrations
  * Retrieves all registered integrations with optional status, search, and sort filters
@@ -89,7 +187,10 @@ integrationsRouter.get('/', async (req: Request, res: Response) => {
     let list: any[] = [];
     const itemMap = new Map<string, any>();
 
-    // Start with memory integrationRegistry (includes default StoreX connectors)
+    // Start with all 5 default StoreX connectors
+    DEFAULT_CONNECTORS_LIST.forEach(item => itemMap.set(item.id, formatIntegration(item)));
+
+    // Include any in-memory additions
     if (Object.keys(integrationRegistry).length > 0) {
       Object.values(integrationRegistry).forEach(item => {
         itemMap.set(item.id, formatIntegration(item));
