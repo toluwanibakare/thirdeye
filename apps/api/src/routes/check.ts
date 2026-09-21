@@ -62,9 +62,14 @@ checkRouter.post('/', async (req: Request, res: Response) => {
 
     // Update in-memory fallback state for immediate consistency in offline/demo mode
     if (result.violations.length > 0) {
-      if (result.level === 'CRITICAL' && fallbackIntegrations[body.integrationId]) {
-        fallbackIntegrations[body.integrationId].status = 'QUARANTINED';
+      const newStatus = result.level === 'CRITICAL' ? 'QUARANTINED' : 'ACTIVE';
+      if (fallbackIntegrations[body.integrationId]) {
+        fallbackIntegrations[body.integrationId].status = newStatus;
         fallbackIntegrations[body.integrationId].risk_score = result.riskScore;
+      }
+      if (integrationRegistry[body.integrationId]) {
+        integrationRegistry[body.integrationId].status = newStatus;
+        integrationRegistry[body.integrationId].risk_score = result.riskScore;
       }
 
       demoEvents.unshift({

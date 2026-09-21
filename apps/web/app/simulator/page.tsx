@@ -314,6 +314,20 @@ export default function SimulatorPage() {
             requestCount: p.requestCount,
           }),
         });
+        const newScore = res.riskScore;
+        const newStatus = newScore >= 81 ? 'QUARANTINED' : 'ACTIVE';
+        setIntegrations(prev => {
+          const updated = prev.map(item => {
+            if (item.id === integrationId) {
+              return { ...item, riskScore: newScore, risk_score: newScore, status: newStatus };
+            }
+            return item;
+          });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('thirdeye_connected_integrations', JSON.stringify(updated));
+          }
+          return updated;
+        });
         setLog(prev => [
           ...prev,
           { ...res, endpoint: p.endpoint, count: p.requestCount, phase: `Phase ${p.phase} · ${p.name}` },
@@ -321,10 +335,25 @@ export default function SimulatorPage() {
       } catch {
         setLiveEngine(false);
         const fb = activePhases[i] ?? FALLBACK_PHASES[i];
+        const res = localScore(fb.endpoint, fb.dataRequested, fb.requestCount);
+        const newScore = res.riskScore;
+        const newStatus = newScore >= 81 ? 'QUARANTINED' : 'ACTIVE';
+        setIntegrations(prev => {
+          const updated = prev.map(item => {
+            if (item.id === integrationId) {
+              return { ...item, riskScore: newScore, risk_score: newScore, status: newStatus };
+            }
+            return item;
+          });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('thirdeye_connected_integrations', JSON.stringify(updated));
+          }
+          return updated;
+        });
         setLog(prev => [
           ...prev,
           {
-            ...localScore(fb.endpoint, fb.dataRequested, fb.requestCount),
+            ...res,
             endpoint: fb.endpoint,
             count: fb.requestCount,
             phase: `Phase ${fb.phase} · ${fb.name}`,
@@ -356,6 +385,18 @@ export default function SimulatorPage() {
     await apiSafe('/api/simulator/reset', null, {
       method: 'POST',
       body: JSON.stringify({ integrationId }),
+    });
+    setIntegrations(prev => {
+      const resetItems = prev.map(item => {
+        if (item.id === integrationId) {
+          return { ...item, riskScore: 8, risk_score: 8, status: 'ACTIVE' };
+        }
+        return item;
+      });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('thirdeye_connected_integrations', JSON.stringify(resetItems));
+      }
+      return resetItems;
     });
     apiSafe<IntegrationRow[]>('/api/integrations', []).then(r => {
       if (r.data.length) setIntegrations(r.data);
