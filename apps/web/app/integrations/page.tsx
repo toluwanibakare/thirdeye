@@ -22,7 +22,7 @@ const MARKETPLACE_CATALOG = [
   {
     id: 'storex_sales_agent_skill',
     name: 'StoreX Sales AI Agent Skill',
-    category: '🤖 AI Agent Skill',
+    category: 'AI Agent Skill',
     purpose: 'Autonomous sales assistant executing checkout recommendations, cart updates & product lookup.',
     allowedEndpoints: ['/agent/recommend', '/agent/cart-checkout'],
     allowedMethods: ['POST'],
@@ -33,7 +33,7 @@ const MARKETPLACE_CATALOG = [
   {
     id: 'support_agent_tool',
     name: 'Customer Support Agent Skill',
-    category: '🤖 AI Agent Skill',
+    category: 'AI Agent Skill',
     purpose: 'AI Agent tool executing order inquiries, refund lookups, and support ticket creation.',
     allowedEndpoints: ['/agent/support-ticket', '/agent/order-lookup'],
     allowedMethods: ['POST'],
@@ -109,6 +109,8 @@ function IntegrationsInner() {
   const [activeTab, setActiveTab] = useState<'registry' | 'marketplace'>('registry');
   const [connectModal, setConnectModal] = useState<(typeof MARKETPLACE_CATALOG)[0] | null>(null);
   const [connecting, setConnecting] = useState(false);
+
+  const [showDevMenu, setShowDevMenu] = useState(false);
 
   useEffect(() => {
     const urlQ = searchParams.get('q');
@@ -217,7 +219,7 @@ function IntegrationsInner() {
         id,
         name,
         purpose,
-        category: lower.includes('agent') || lower.includes('ai') ? '🤖 AI Agent Skill' : '🔌 Partner API',
+        category: lower.includes('agent') || lower.includes('ai') ? 'AI Agent Skill' : 'Partner API',
         allowedEndpoints: endpoints,
         allowedMethods: methods,
         allowedData,
@@ -301,7 +303,7 @@ function IntegrationsInner() {
       <div className="relative">
         <div className="page-header__bar" />
         <div className="page-header">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
               <div className="section-label">
                 ThirdEye Platform Hub · {items.length} active connectors ·{' '}
@@ -309,13 +311,14 @@ function IntegrationsInner() {
                   {live ? 'live database' : 'connected'}
                 </span>
               </div>
-              <h1 className="section-heading mt-2">Integrations & Marketplace</h1>
-              <p className="section-sub mt-2">
-                Connect your merchant project (like StoreX) to ThirdEye, browse pre-verified partner
-                integrations, generate gateway routing keys, and monitor compliance in real time.
+              <h1 className="section-heading mt-1">Integrations & Marketplace</h1>
+              <p className="section-sub mt-1">
+                Connect merchant projects to ThirdEye, generate gateway routing keys, and monitor compliance in real time.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+
+            {/* Clean, uncluttered action buttons */}
+            <div className="flex items-center gap-2.5 shrink-0">
               <button
                 onClick={async () => {
                   try {
@@ -331,33 +334,14 @@ function IntegrationsInner() {
                     const r = await apiSafe<IntegrationRow[]>('/api/integrations', []);
                     setItems(r.data.map(normaliseIntegration));
                   } catch {
-                    showToast('Connection Error', 'Failed to connect integrations.', 'error');
+                    showToast('Connection Error', 'Failed to connect integrations.', 'alert');
                   }
                 }}
                 className="rounded-xl border border-[#19D98A]/50 bg-[#19D98A]/20 px-3.5 py-2 text-[12.5px] font-bold text-[#19D98A] hover:bg-[#19D98A]/30 transition-all shadow-md shadow-[#19D98A]/20 flex items-center gap-1.5"
               >
-                🤖 Connect Agent Skill
+                Connect Agent Skill
               </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await fetch('/api/integrations/clear', { method: 'POST' });
-                    showToast('Integrations Cleared', 'Reset to 0 integrations (Empty initial demo state).', 'info');
-                    setItems([]);
-                  } catch {
-                    showToast('Reset Error', 'Failed to clear integrations.', 'error');
-                  }
-                }}
-                className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-semibold text-[#8494AD] hover:text-white transition-all"
-              >
-                ⚡ Reset (Empty Demo State)
-              </button>
-              <button
-                onClick={() => setShowAutoDiscoverModal(true)}
-                className="rounded-xl border border-[#00C8D7]/40 bg-[#00C8D7]/15 px-3.5 py-2 text-[12.5px] font-bold text-[#00C8D7] hover:bg-[#00C8D7]/25 transition-all shadow-md shadow-[#00C8D7]/20 flex items-center gap-1.5"
-              >
-                ⚡ Auto-Discover URL
-              </button>
+
               <button
                 onClick={() => setShowConnectProjectModal(true)}
                 className="btn-accent flex items-center gap-2 !px-3.5 !py-2 !text-[12.5px] shadow-lg shadow-[#1677FF]/20"
@@ -365,30 +349,52 @@ function IntegrationsInner() {
                 <Icon d={paths.plus} size={14} />
                 Connect Project
               </button>
-              <button
-                onClick={() => setActiveTab('registry')}
-                className={`rounded-xl border px-3.5 py-2 text-[12.5px] font-semibold transition-colors ${
-                  activeTab === 'registry'
-                    ? 'border-[#1677FF] bg-[#1677FF] text-white'
-                    : 'border-white/10 bg-white/5 text-[#93A1B8]'
-                }`}
-              >
-                Active Registry ({items.length})
-              </button>
-              <button
-                onClick={() => setActiveTab('marketplace')}
-                className={`rounded-xl border px-3.5 py-2 text-[12.5px] font-semibold transition-colors flex items-center gap-1.5 ${
-                  activeTab === 'marketplace'
-                    ? 'border-[#1677FF] bg-[#1677FF] text-white'
-                    : 'border-white/10 bg-white/5 text-[#93A1B8]'
-                }`}
-              >
-                <Icon d={paths.grid} size={14} /> Marketplace (+5)
-              </button>
+
+              {/* Dev & Demo Options Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowDevMenu(!showDevMenu)}
+                  className="rounded-xl border border-white/15 bg-white/5 p-2 text-[#94A3B8] hover:text-white hover:bg-white/10 transition-all"
+                  title="More Tools"
+                >
+                  <Icon d={paths.grid} size={16} />
+                </button>
+
+                {showDevMenu && (
+                  <div className="absolute right-0 top-full mt-2 z-[60] w-56 rounded-2xl border border-white/15 bg-[#0E1A33] p-2 shadow-2xl backdrop-blur-xl animate-rise">
+                    <button
+                      onClick={() => {
+                        setShowDevMenu(false);
+                        setShowAutoDiscoverModal(true);
+                      }}
+                      className="w-full text-left rounded-xl px-3 py-2 text-[12.5px] font-semibold text-[#00C8D7] hover:bg-white/5 flex items-center gap-2"
+                    >
+                      Auto-Discover via URL
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setShowDevMenu(false);
+                        try {
+                          await fetch('/api/integrations/clear', { method: 'POST' });
+                          showToast('Integrations Reset', 'Cleared all connectors to 0 (Empty demo state).', 'info');
+                          setItems([]);
+                        } catch {
+                          showToast('Reset Error', 'Failed to clear integrations.', 'alert');
+                        }
+                      }}
+                      className="w-full text-left rounded-xl px-3 py-2 text-[12.5px] font-semibold text-[#FF4D4F] hover:bg-white/5 flex items-center gap-2 border-t border-white/10 mt-1 pt-2"
+                    >
+                      Reset (0 Integrations)
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+
 
       {/* ═══ Connected Project Status Banner ═══ */}
       <div className="panel relative overflow-hidden p-5 border-white/15 bg-gradient-to-r from-[#0E1A33] via-[#0A1224] to-[#0E1A33]">
@@ -427,87 +433,32 @@ function IntegrationsInner() {
               Configure Project / Switch
             </button>
             <button
-              onClick={() => setActiveTab('marketplace')}
+              onClick={async () => {
+                try {
+                  await fetch('/api/integrations/seed-storex', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      projectKey: 'te_proj_storex_99a8b7c6',
+                      integrations: MARKETPLACE_CATALOG,
+                    }),
+                  });
+                  showToast('Agent Connection Established', 'Connected StoreX project integrations to ThirdEye Engine!', 'success');
+                  const r = await apiSafe<IntegrationRow[]>('/api/integrations', []);
+                  setItems(r.data.map(normaliseIntegration));
+                } catch {
+                  showToast('Connection Error', 'Failed to connect integrations.', 'alert');
+                }
+              }}
               className="btn-accent !px-4 !py-2 !text-[12.5px]"
             >
-              Search Partner APIs →
+              Connect API via Agent →
             </button>
           </div>
         </div>
       </div>
 
-      {activeTab === 'marketplace' ? (
-        /* ═══ Marketplace Tab ═══ */
-        <div className="space-y-5">
-          <div className="section-card !py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <p className="section-label-soft">Marketplace Catalog</p>
-                <p className="h-section mt-0.5">Pre-verified partner integrations for {projectName}</p>
-              </div>
-              <span className="chip !text-[11px]">5 CONNECTORS AVAILABLE</span>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {MARKETPLACE_CATALOG.map(cat => {
-              const connected = items.some(i => i.name === cat.name);
-              return (
-                <div
-                  key={cat.id}
-                  className="panel relative flex flex-col justify-between overflow-hidden p-6 transition-all duration-150 hover:border-white/20"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <span className="chip !text-[10px] uppercase">{cat.category}</span>
-                        <h3 className="mt-2 text-[17px] font-bold text-white">{cat.name}</h3>
-                      </div>
-                      {connected ? (
-                        <span className="chip !border-[#19D98A]/30 !bg-[#19D98A]/10 !text-[#19D98A]">
-                          CONNECTED
-                        </span>
-                      ) : (
-                        <span className="chip !border-[#5B9CFF]/30 !bg-[#5B9CFF]/10 !text-[#5B9CFF]">
-                          READY
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-2 text-[13.5px] leading-relaxed text-[#94A3B8]">{cat.purpose}</p>
-
-                    <div className="mt-4 space-y-2 border-t pt-3 border-white/10">
-                      <div>
-                        <span className="mono-num text-[10px] uppercase text-[#64748B]">
-                          Scope Endpoints:
-                        </span>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {cat.allowedEndpoints.map(e => (
-                            <span
-                              key={e}
-                              className="rounded-md border px-1.5 py-0.5 font-mono text-[10.5px] border-white/10 bg-white/5 text-[#94A3B8]"
-                            >
-                              {e}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setConnectModal(cat)}
-                    className="btn-accent mt-5 w-full justify-center !py-2.5 !text-[13px]"
-                  >
-                    {connected ? 'Re-configure Integration' : `Connect to ${projectName} →`}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : (
-        /* ═══ Active Registry Tab ═══ */
-        <>
+      {/* ═══ Active Integration Registry ═══ */}
           {/* ═══ Filter & Sort ═══ */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="panel flex items-center gap-3 px-4 py-3 w-full sm:flex-1 min-w-0">
@@ -651,8 +602,6 @@ function IntegrationsInner() {
               })}
             </div>
           )}
-        </>
-      )}
 
       {/* ═══ CONNECT PROJECT TO THIRD EYE MODAL ═══ */}
       {showConnectProjectModal && (
@@ -861,7 +810,7 @@ const thirdeye = new ThirdEye({
             <div className="flex items-start justify-between border-b pb-4 border-white/10">
               <div>
                 <span className="chip !text-[10px] uppercase text-[#00C8D7] border-[#00C8D7]/30 bg-[#00C8D7]/10">
-                  ⚡ AUTO-DISCOVERY ENGINE
+                  AUTO-DISCOVERY ENGINE
                 </span>
                 <h3 className="mt-1 text-[20px] font-bold text-white">Auto-Discover via API / Documentation Link</h3>
                 <p className="text-[13px] text-[#8494AD]">
@@ -897,7 +846,7 @@ const thirdeye = new ThirdEye({
                     disabled={discovering || !autoDiscoverUrl}
                     className="rounded-xl border border-[#00C8D7]/40 bg-[#00C8D7]/20 px-4 py-2.5 text-[13px] font-bold text-[#00C8D7] hover:bg-[#00C8D7]/30 transition-all disabled:opacity-50 shrink-0"
                   >
-                    {discovering ? 'Inspecting…' : '⚡ Auto-Discover'}
+                    {discovering ? 'Inspecting…' : 'Auto-Discover'}
                   </button>
                 </div>
               </div>

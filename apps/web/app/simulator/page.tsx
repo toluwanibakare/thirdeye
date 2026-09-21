@@ -458,7 +458,7 @@ export default function SimulatorPage() {
               <span className="text-[#FF8090] font-bold text-[11px]">QUARANTINED · PII Leak</span>
             </div>
             <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
-              <span>🤖 <strong>StoreX Sales AI Agent Skill</strong> (<code className="text-[#00C8D7]">agent_001</code>)</span>
+              <span><strong>StoreX Sales AI Agent Skill</strong> (<code className="text-[#00C8D7]">agent_001</code>)</span>
               <span className="text-[#FF8090] font-bold text-[11px]">QUARANTINED · Prompt Drift</span>
             </div>
           </div>
@@ -528,18 +528,19 @@ export default function SimulatorPage() {
                 >
                   <option value="credential_compromise" style={{ background: '#0E1A33' }}>
                     🔑 Credential Compromise & PII Exfiltration
+                    Credential Compromise & PII Exfiltration
                   </option>
                   <option value="stale_key_leak" style={{ background: '#0E1A33' }}>
-                    ⏳ 3-Year-Old Stale Trial Key Misuse (G1 Scenario)
+                    3-Year-Old Stale Trial Key Misuse (G1 Scenario)
                   </option>
                   <option value="seasonal_surge_abuse" style={{ background: '#0E1A33' }}>
-                    🛍️ Seasonal Sales Campaign Traffic Masking
+                    Seasonal Sales Campaign Traffic Masking
                   </option>
                   <option value="courier_address_harvesting" style={{ background: '#0E1A33' }}>
-                    📦 Courier & Logistics Over-Reach
+                    Courier & Logistics Over-Reach
                   </option>
                   <option value="agent_drift" style={{ background: '#0E1A33' }}>
-                    🤖 Autonomous AI Agent Skill & Tool Drift
+                    Autonomous AI Agent Skill & Tool Drift
                   </option>
                 </select>
               </div>

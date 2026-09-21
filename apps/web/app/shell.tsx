@@ -314,7 +314,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </span>
                 {devMode && (
                   <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-[#00CEC9]/40 bg-[#00CEC9]/10 px-3 py-1 text-[11px] font-mono font-bold text-[#00CEC9] shadow-sm shadow-[#00CEC9]/20 animate-pulse">
-                    <span>⚡ DEV MODE ACTIVE</span>
+                    <span>DEV MODE ACTIVE</span>
                     <span className="opacity-60 text-[10px]">| p99: 0.8ms</span>
                   </span>
                 )}

@@ -21,5 +21,8 @@
   },
   "devDependencies": {
     "prettier": "^3.9.8"
+  },
+  "dependencies": {
+    "@esbuild/linux-x64": "^0.28.2"
   }
 }

@@ -152,14 +152,17 @@ developers.
 
 The whole pitch, live, in one flow:
 
-1. Open `/dashboard` — four trusted integrations, all green.
-2. Open `/simulator` → pick **Analytics Provider** → **Credential Compromise** → **Start attack**.
-3. **Phase 1** — normal `/analytics/events` traffic. Risk **8**, `ALLOW`.
-4. **Phase 2** — it starts probing `/customers/profile`. Risk **45**, `MONITOR`.
-5. **Phase 3** — payment-data exfiltration plus a traffic surge. Risk **72**, `RATE_LIMIT`.
-6. **Phase 4** — full breach spike at 17.8× normal volume. Risk **95**, `BLOCK` + `QUARANTINE`.
-7. The dashboard explains **WHY**: purpose violation · forbidden data · abnormal endpoint · abnormal volume.
-8. Hit **Release** — clean traffic flows again.
+1. **Initial Unconnected State**: Open ThirdEye (`/integrations` or `/dashboard`) — starts clean with 0 active connectors before project connection.
+2. **Connect via Autonomous Agent Skill**: In StoreX project terminal, run `npm run thirdeye:connect` (or click `Connect Agent Skill` on UI).
+   - Agent discovers 5 StoreX API connectors (`/api/payments`, `/api/delivery`, `/api/analytics`, `/api/campaigns`, `/api/agent`) and connects project `te_proj_storex_99a8b7c6`.
+3. **Live Dashboard Update**: Refresh ThirdEye — all 5 StoreX integrations show active and protected!
+4. **Attack Simulation & Quarantine**: Open `/simulator` → select **Segment Analytics** (or **StoreX Sales AI Agent Skill**) → **Start Attack Simulation**.
+   - **Phase 1**: Normal `/analytics/events` traffic. Risk **8**, `ALLOW`.
+   - **Phase 2**: Purpose & endpoint drift probing `/customers/profile`. Risk **45**, `MONITOR`.
+   - **Phase 3**: Payment-data exfiltration + rate spike. Risk **72**, `RATE_LIMIT`.
+   - **Phase 4**: Breach spike at 17.8× volume. Risk **95**, `BLOCK` + **QUARANTINE**.
+5. **Dashboard Audit Explanation**: Dashboard displays exact root causes (purpose violation, PII leak, rate spike) and moves compromised integration to **QUARANTINE**.
+6. **Release & Recover**: Click **Release** — integration is restored to `ACTIVE`.
 
 > **The one sentence:** _ThirdEye continuously verifies that authorized third-party
 > integrations behave within their intended purpose and approved scope — then

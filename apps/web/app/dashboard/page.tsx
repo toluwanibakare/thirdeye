@@ -140,8 +140,8 @@ export default function Dashboard() {
       {devMode && (
         <div className="rounded-2xl border border-[#5B50E6]/50 bg-[#5B50E6]/10 p-4 shadow-lg shadow-[#5B50E6]/20 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-rise">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#5B50E6] text-white font-mono font-bold text-[14px]">
-              ⚡
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#5B50E6] text-white font-mono font-bold text-[11px]">
+              DEV
             </div>
             <div>
               <div className="flex items-center gap-2">
