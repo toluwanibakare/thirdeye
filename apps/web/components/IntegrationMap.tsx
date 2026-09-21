@@ -19,7 +19,7 @@ export function IntegrationMap({
   variant?: 'light' | 'dark' | 'auto';
 }) {
   const W = 860;
-  const H = 360;
+  const H = 380;
   const cx = W / 2; // 430
 
   // Coordinates
@@ -383,7 +383,7 @@ export function IntegrationMap({
                     {/* Card Shadow and Background */}
                     <rect
                       width={cardW}
-                      height={64}
+                      height={76}
                       rx={14}
                       fill={isCritical ? '#2A0E18' : isHigh ? '#2A1E0A' : '#0E1A33'}
                       stroke={isCritical ? '#FF4D5E' : isHigh ? '#FF9F2E' : 'rgba(245,249,255,0.14)'}
@@ -416,7 +416,7 @@ export function IntegrationMap({
                     {/* Integration Name */}
                     <text
                       x={cardHalf}
-                      y={21}
+                      y={19}
                       textAnchor="middle"
                       fill="#F5F9FF"
                       fontSize={n <= 4 ? 12 : 11}
@@ -430,10 +430,10 @@ export function IntegrationMap({
                     {/* Risk Score & Tier Label */}
                     <text
                       x={cardHalf}
-                      y={38}
+                      y={34}
                       textAnchor="middle"
                       fill={linkColor}
-                      fontSize={n <= 4 ? 12 : 11}
+                      fontSize={n <= 4 ? 11.5 : 10.5}
                       fontWeight={900}
                       fontFamily="monospace"
                     >
@@ -443,15 +443,37 @@ export function IntegrationMap({
                     {/* Traffic Rate & Status */}
                     <text
                       x={cardHalf}
-                      y={52}
+                      y={48}
                       textAnchor="middle"
                       fill="#8B9BB4"
-                      fontSize={9.5}
+                      fontSize={9}
                       fontFamily="monospace"
                       fontWeight={500}
                     >
                       {rateText} · {it.status}
                     </text>
+
+                    {/* Reached & Touched Data Scope / Scope Violation Tag */}
+                    {(() => {
+                      const allowedDataList = (it.allowed_data || it.allowedData || []).slice(0, 2);
+                      const forbiddenList = (it.forbidden_data || it.forbiddenData || []).slice(0, 1);
+                      const dataLabel = allowedDataList.length > 0 ? allowedDataList.join('·') : 'order_id';
+                      const forbiddenLabel = forbiddenList.length > 0 ? forbiddenList[0] : 'PII_DATA';
+                      return (
+                        <text
+                          x={cardHalf}
+                          y={62}
+                          textAnchor="middle"
+                          fill={isCritical ? '#FF8090' : isHigh ? '#FFB84D' : isWatch ? '#FFE066' : '#00C8D7'}
+                          fontSize={8.5}
+                          fontFamily="monospace"
+                          fontWeight={700}
+                          letterSpacing={0.3}
+                        >
+                          {isCritical ? `⚠️ BREACH: ${forbiddenLabel}` : isHigh ? `⚠️ DRIFT: ${forbiddenLabel}` : `REACH: ${dataLabel}`}
+                        </text>
+                      );
+                    })()}
                   </g>
                 </g>
               );

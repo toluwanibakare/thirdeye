@@ -164,10 +164,30 @@ export default function LandingPage() {
   }, [tierHold]);
 
   useEffect(() => {
-    apiSafe<IntegrationRow[]>('/api/integrations', []).then(r => {
-      setItems(r.data.map(normaliseIntegration));
-      setLive(r.live);
-    });
+    // 1. Try local storage cache first for instant render
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('thirdeye_connected_integrations');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length) {
+            setItems(parsed.map(normaliseIntegration));
+          }
+        } catch {}
+      }
+    }
+
+    const load = () => {
+      apiSafe<IntegrationRow[]>('/api/integrations', []).then(r => {
+        if (r.data && r.data.length) {
+          setItems(r.data.map(normaliseIntegration));
+        }
+        setLive(r.live);
+      });
+    };
+    load();
+    const timer = setInterval(load, 3000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -1052,60 +1072,74 @@ never just the score.`}
                   ? items
                   : [
                       {
-                        id: 'stripe_pay_001',
+                        id: 'stripe_pay',
                         name: 'Stripe Payments',
-                        purpose: 'Process tokenized card checkout payments',
+                        purpose: 'Process online checkout payments & card tokens',
                         status: 'ACTIVE',
                         riskScore: 8,
                         requestsPerMin: 150,
                         expected_request_rate: 150,
-                        allowed_endpoints: ['/v1/charges', '/v1/refunds'],
-                        allowed_methods: ['POST', 'GET'],
-                        allowed_data: ['amount', 'currency', 'customer_id'],
-                        forbidden_data: ['card_cvv', 'raw_password'],
+                        allowed_endpoints: ['/payments', '/refunds'],
+                        allowed_methods: ['POST'],
+                        allowed_data: ['amount', 'currency', 'order_id'],
+                        forbidden_data: ['full_card_number', 'cvv', 'raw_password'],
                         lastActivity: '12s ago',
                       },
                       {
-                        id: 'openai_agent_001',
-                        name: 'OpenAI Agent Skill',
-                        purpose: 'AI Agent tool executing store recommendations & cart actions',
+                        id: 'fedex_delivery',
+                        name: 'ShipFast Logistics',
+                        purpose: 'Generate tracking numbers, shipping rates and order dispatches',
                         status: 'ACTIVE',
-                        riskScore: 45,
-                        requestsPerMin: 220,
-                        expected_request_rate: 200,
-                        allowed_endpoints: ['/v1/chat/completions', '/agent/execute-tool'],
-                        allowed_methods: ['POST'],
-                        allowed_data: ['prompt_tokens', 'item_sku', 'quantity'],
-                        forbidden_data: ['system_prompt_tokens', 'admin_secret_key'],
-                        lastActivity: '5s ago',
+                        riskScore: 8,
+                        requestsPerMin: 80,
+                        expected_request_rate: 80,
+                        allowed_endpoints: ['/orders', '/delivery/shipments'],
+                        allowed_methods: ['GET', 'POST'],
+                        allowed_data: ['order_id', 'recipient_name', 'delivery_address'],
+                        forbidden_data: ['card_number', 'cvv', 'password_hash'],
+                        lastActivity: '15s ago',
                       },
                       {
-                        id: 'klaviyo_marketing_001',
+                        id: 'segment_analytics',
+                        name: 'Segment Analytics (3-Yr Legacy Trial)',
+                        purpose: 'Collect clickstream metrics and user session events',
+                        status: 'ACTIVE',
+                        riskScore: 45,
+                        requestsPerMin: 300,
+                        expected_request_rate: 200,
+                        allowed_endpoints: ['/analytics/events'],
+                        allowed_methods: ['POST'],
+                        allowed_data: ['anonymous_user_id', 'page', 'event'],
+                        forbidden_data: ['payment_info', 'phone_number', 'customer_address'],
+                        lastActivity: '3s ago',
+                      },
+                      {
+                        id: 'klaviyo_marketing',
                         name: 'Klaviyo Marketing',
                         purpose: 'Send automated promotional order receipts and campaign emails',
                         status: 'ACTIVE',
                         riskScore: 75,
-                        requestsPerMin: 310,
-                        expected_request_rate: 80,
-                        allowed_endpoints: ['/api/campaigns', '/api/subscribers'],
+                        requestsPerMin: 650,
+                        expected_request_rate: 95,
+                        allowed_endpoints: ['/campaigns', '/subscribers'],
                         allowed_methods: ['POST'],
-                        allowed_data: ['email', 'first_name'],
-                        forbidden_data: ['credit_card', 'password_hash'],
-                        lastActivity: '2s ago',
+                        allowed_data: ['campaign_id', 'email', 'first_name'],
+                        forbidden_data: ['payment_details', 'card_cvv', 'password_hash'],
+                        lastActivity: '1s ago',
                       },
                       {
-                        id: 'fedex_delivery_001',
-                        name: 'FedEx Logistics',
-                        purpose: 'Generate tracking numbers, shipping rates and order dispatches',
+                        id: 'storex_sales_agent_skill',
+                        name: 'StoreX Sales AI Agent Skill',
+                        purpose: 'Autonomous sales assistant executing checkout recommendations & cart actions',
                         status: 'QUARANTINED',
-                        riskScore: 92,
-                        requestsPerMin: 850,
-                        expected_request_rate: 100,
-                        allowed_endpoints: ['/shipments/rates', '/shipments/dispatch'],
-                        allowed_methods: ['GET', 'POST'],
-                        allowed_data: ['order_id', 'shipping_address'],
-                        forbidden_data: ['payment_info', 'customer_ssn'],
-                        lastActivity: '1 min ago',
+                        riskScore: 95,
+                        requestsPerMin: 1650,
+                        expected_request_rate: 300,
+                        allowed_endpoints: ['/agent/recommend', '/agent/cart-checkout'],
+                        allowed_methods: ['POST'],
+                        allowed_data: ['item_sku', 'session_token', 'quantity'],
+                        forbidden_data: ['full_credit_card', 'customer_password_hash', 'master_api_secret'],
+                        lastActivity: '1s ago',
                       },
                     ]
               }

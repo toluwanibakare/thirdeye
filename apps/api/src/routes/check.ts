@@ -6,6 +6,7 @@ import { CheckRequest } from '@thirdeye/shared';
 import { fallbackIntegrations } from './integrations.js';
 import { demoEvents } from './events.js';
 import { getTrustProfileById } from '../lib/trustProfileStore.js';
+import { integrationRegistry } from '../integrations/registry.js';
 
 export const checkRouter = Router();
 
