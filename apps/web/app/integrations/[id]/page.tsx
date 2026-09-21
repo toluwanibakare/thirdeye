@@ -62,17 +62,52 @@ export default function IntegrationDetail() {
       apiSafe<SecEvent[]>(`/api/security-events?integrationId=${id}&limit=10`, []),
     ]);
     if (p.data) {
-      const prof = (p.data as { profile?: IntegrationRow }).profile ?? (p.data as IntegrationRow);
+      let prof = (p.data as { profile?: IntegrationRow }).profile ?? (p.data as IntegrationRow);
+
+      // Check client-side local storage override for recent simulation attacks
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('thirdeye_connected_integrations');
+        if (stored) {
+          try {
+            const list = JSON.parse(stored);
+            if (Array.isArray(list)) {
+              const matched = list.find((item: any) => item.id === id);
+              if (matched) {
+                const storedRisk = matched.riskScore ?? matched.risk_score ?? 0;
+                const apiRisk = prof.riskScore ?? prof.risk_score ?? 0;
+                if (storedRisk > apiRisk || matched.status === 'QUARANTINED') {
+                  prof = {
+                    ...prof,
+                    riskScore: storedRisk,
+                    risk_score: storedRisk,
+                    status: matched.status || prof.status,
+                  };
+                }
+              }
+            }
+          } catch {}
+        }
+      }
+
       setProfile(prof);
       const beh = (p.data as IntegrationDetailResponse).behaviour ?? null;
       setBehaviour(beh);
       const fromDetail = (p.data as { recentViolations?: SecEvent[] }).recentViolations ?? [];
       const merged = ev.data.length ? ev.data : fromDetail;
       setEvents(merged.map(normaliseEvent));
-    } else {
-      setProfile(null);
-      setBehaviour(null);
-      setEvents(ev.data.map(normaliseEvent));
+    } else if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('thirdeye_connected_integrations');
+      if (stored) {
+        try {
+          const list = JSON.parse(stored);
+          if (Array.isArray(list)) {
+            const matched = list.find((item: any) => item.id === id);
+            if (matched) {
+              setProfile(matched);
+            }
+          }
+        } catch {}
+      }
     }
     if (h.live && h.data.history?.length) setHistory(h.data);
     else setHistory(null);

@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const id = setTimeout(() => setBooted(true), 400);
+    const id = setTimeout(() => setBooted(true), 800);
     return () => clearTimeout(id);
   }, []);
 

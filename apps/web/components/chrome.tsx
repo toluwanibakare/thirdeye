@@ -82,19 +82,22 @@ export function BootLoader({ done }: { done?: boolean }) {
     setFading(true);
     setTimeout(() => {
       setShow(false);
-    }, 200);
+    }, 250);
   }, []);
 
   useEffect(() => {
     if (done && !fading) {
-      finish();
+      // Allow video to complete naturally or fade out if done
+      const t = setTimeout(finish, 100);
+      return () => clearTimeout(t);
     }
   }, [done, fading, finish]);
 
   useEffect(() => {
+    // Fail-safe max timeout to ensure page is unblocked even if video fails to play
     const fallback = setTimeout(() => {
       finish();
-    }, 600);
+    }, 1100);
     return () => clearTimeout(fallback);
   }, [finish]);
 
@@ -102,7 +105,7 @@ export function BootLoader({ done }: { done?: boolean }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[99999] flex h-screen w-screen items-center justify-center bg-[#020617] transition-opacity duration-350 ease-out ${
+      className={`fixed inset-0 z-[99999] flex h-screen w-screen items-center justify-center bg-[#020617] transition-opacity duration-300 ease-out ${
         fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       style={{ backgroundColor: '#020617' }}
@@ -128,10 +131,10 @@ export function BootLoader({ done }: { done?: boolean }) {
         playsInline
         preload="auto"
         onPlay={() => {
-          if (videoRef.current) videoRef.current.playbackRate = 2.2;
+          if (videoRef.current) videoRef.current.playbackRate = 1.8;
         }}
         onLoadedMetadata={() => {
-          if (videoRef.current) videoRef.current.playbackRate = 2.2;
+          if (videoRef.current) videoRef.current.playbackRate = 1.8;
         }}
         onEnded={finish}
         className="relative z-10 h-36 w-36 object-contain sm:h-40 sm:w-40 md:h-48 md:w-48 [filter:invert(1)_hue-rotate(180deg)] [mix-blend-mode:screen]"
