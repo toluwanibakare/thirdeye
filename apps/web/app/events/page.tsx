@@ -1,5 +1,4 @@
 'use client';
-export const dynamic = 'force-dynamic';
 import { useEffect, useMemo, useState } from 'react';
 import { EventTimeline } from '@/components/EventTimeline';
 import { IntegrationMap } from '@/components/IntegrationMap';

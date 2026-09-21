@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { EventTimeline } from '@/components/EventTimeline';
+import { Icon, paths } from '@/components/icons';
 import { IntegrationTable } from '@/components/IntegrationTable';
 import { RiskBars, TrafficDonut, TrustGauge } from '@/components/DashboardCharts';
 import { StatCard } from '@/components/chrome';
@@ -159,6 +160,28 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* ═══ ZERO STATE NOTICE BANNER ═══ */}
+      {!items.length && (
+        <div className="panel p-6 bg-gradient-to-r from-[#0E1A33] via-[#0A1224] to-[#0E1A33] border-[#1677FF]/30 rounded-3xl animate-rise">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#1677FF]/40 bg-[#1677FF]/15 text-[#5B9CFF]">
+                <Icon d={paths.shield} size={24} />
+              </div>
+              <div>
+                <h3 className="text-[18px] font-bold text-white">No integrations connected</h3>
+                <p className="text-[13.5px] text-[#8494AD] mt-0.5">
+                  No integration connected. Go over to your project and connect.
+                </p>
+              </div>
+            </div>
+            <Link href="/integrations" className="btn-accent !px-5 !py-2.5 !text-[13px] shrink-0">
+              Connect Your Project →
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* ═══ TOP ROW: 2 CARDS (Wide Category Donut + Bar Chart) ═══ */}
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Card 1: Wide Category Donut Breakdown */}
@@ -204,7 +227,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
             <h4 className="text-[14px] font-bold text-white">Integration Trust Registry</h4>
             <Link href="/integrations" className="text-[12px] font-semibold text-[#5B50E6] hover:underline">
-              Open Marketplace →
+              View Registry →
             </Link>
           </div>
 

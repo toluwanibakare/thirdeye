@@ -27,8 +27,8 @@ export function IntegrationTable({
   if (!items.length) {
     return (
       <EmptyState
-        title="No integrations found"
-        body="No third-party integrations are registered yet. Connect one from the marketplace."
+        title="No integrations connected"
+        body="No integration connected. Go over to your project and connect."
       />
     );
   }

@@ -311,7 +311,7 @@ function IntegrationsInner() {
                   {live ? 'live database' : 'connected'}
                 </span>
               </div>
-              <h1 className="section-heading mt-1">Integrations & Marketplace</h1>
+              <h1 className="section-heading mt-1">Integrations and Marketplace</h1>
               <p className="section-sub mt-1">
                 Connect merchant projects to ThirdEye, generate gateway routing keys, and monitor compliance in real time.
               </p>
@@ -422,6 +422,7 @@ function IntegrationsInner() {
                 </span>
               </div>
             </div>
+          </div>
         </div>
       </div>
 
@@ -685,14 +686,14 @@ export const gateway = new ThirdEyeGateway({
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[#19D98A]/40 bg-[#19D98A]/15 text-[#19D98A]">
                   <Icon d={paths.check} size={32} />
                 </div>
-                <h4 className="text-[20px] font-bold text-white">Connected & Protected!</h4>
+                <h4 className="text-[20px] font-bold text-white">Connected and Protected!</h4>
                 <p className="text-[13.5px] text-[#94A3B8] max-w-md mx-auto">
                   Project <span className="text-white font-semibold">{projectName}</span> is now linked to
-                  ThirdEye Gateway. You can now search and connect partner APIs from the Marketplace catalog!
+                  ThirdEye Gateway. You can now search and connect partner APIs!
                 </p>
                 <div className="pt-4 flex justify-center">
                   <button onClick={handleConnectProject} className="btn-accent !px-6 !py-2.5 !text-[13.5px]">
-                    Go to Marketplace & Connect APIs →
+                    Go to Registry and View Connected APIs →
                   </button>
                 </div>
               </div>
@@ -760,7 +761,7 @@ const thirdeye = new ThirdEye({
                 disabled={connecting}
                 className="btn-accent !px-5 !py-2 !text-[13px] disabled:opacity-50"
               >
-                {connecting ? 'Connecting…' : `Complete Connection & Connect to ${projectName} →`}
+                {connecting ? 'Connecting…' : `Complete Connection and Connect to ${projectName} →`}
               </button>
             </div>
           </div>

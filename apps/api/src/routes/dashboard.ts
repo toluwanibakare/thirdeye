@@ -24,8 +24,8 @@ dashboardRouter.get('/stats', async (_req: Request, res: Response) => {
       const total = list.length;
       const active = list.filter(i => i.status === 'ACTIVE').length;
       const quarantined = list.filter(i => i.status === 'QUARANTINED').length;
-      const totalThreats = threats || 0;
-      const totalMonitored = monitored || 0;
+      const totalThreats = total === 0 ? 0 : (threats || 0);
+      const totalMonitored = total === 0 ? 0 : (monitored || 0);
 
       return res.status(200).json({
         integrations: total,
