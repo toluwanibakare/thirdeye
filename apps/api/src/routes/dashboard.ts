@@ -44,14 +44,14 @@ dashboardRouter.get('/stats', async (_req: Request, res: Response) => {
     const total = fallbackList.length;
     const active = fallbackList.filter((i: any) => i.status === 'ACTIVE').length;
     const quarantined = fallbackList.filter((i: any) => i.status === 'QUARANTINED').length;
-    const threats = demoEvents.length;
+    const threats = total === 0 ? 0 : demoEvents.length;
 
     return res.status(200).json({
       integrations: total,
       totalIntegrations: total,
       active,
       activeIntegrations: active,
-      monitoredRequests: 12480,
+      monitoredRequests: total === 0 ? 0 : 12480,
       threats,
       totalThreats: threats,
       quarantined,
@@ -90,6 +90,11 @@ dashboardRouter.get('/activity', async (req: Request, res: Response) => {
         }));
         return res.status(200).json(activity);
       }
+    }
+
+    const fallbackList = Object.values(fallbackIntegrations);
+    if (fallbackList.length === 0) {
+      return res.status(200).json([]);
     }
 
     const now = Date.now();

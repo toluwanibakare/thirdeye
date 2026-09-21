@@ -344,7 +344,7 @@ integrationsRouter.post('/seed-storex', async (req: Request, res: Response) => {
   const { projectKey, integrations } = req.body || {};
   const list = Array.isArray(integrations) ? integrations : [];
 
-  list.forEach((item: any) => {
+  for (const item of list) {
     const id = item.id || `storex_${item.name.toLowerCase().replace(/\s+/g, '_')}`;
     const formatted: any = {
       id,
@@ -371,7 +371,28 @@ integrationsRouter.post('/seed-storex', async (req: Request, res: Response) => {
     };
     integrationRegistry[id] = formatted;
     fallbackIntegrations[id] = formatted;
-  });
+
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.from('integrations').upsert({
+          id: formatted.id,
+          name: formatted.name,
+          purpose: formatted.purpose,
+          status: formatted.status,
+          risk_score: formatted.risk_score,
+          expected_request_rate: formatted.expected_request_rate,
+          allowed_endpoints: formatted.allowed_endpoints,
+          allowed_methods: formatted.allowed_methods,
+          allowed_data: formatted.allowed_data,
+          forbidden_data: formatted.forbidden_data,
+          created_at: formatted.created_at,
+          updated_at: formatted.updated_at,
+        });
+      } catch (dbErr) {
+        console.error('[integrations] Supabase seed error:', dbErr);
+      }
+    }
+  }
 
   return res.status(200).json({
     success: true,
@@ -389,6 +410,13 @@ integrationsRouter.post('/clear', async (req: Request, res: Response) => {
   for (const k of Object.keys(integrationRegistry)) {
     delete integrationRegistry[k];
     delete fallbackIntegrations[k];
+  }
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.from('integrations').delete().neq('id', '___none___');
+    } catch (err) {
+      console.error('[integrations] Supabase clear error:', err);
+    }
   }
   return res.status(200).json({ success: true, count: 0, message: 'Integrations cleared for demo.' });
 });
