@@ -1046,7 +1046,70 @@ never just the score.`}
             </Link>
           </div>
           <div className="panel mt-6 sm:mt-7 overflow-hidden transition-shadow duration-300 hover:shadow-[0_0_50px_-16px_rgba(22,119,255,0.4)]">
-            <IntegrationMap items={items} />
+            <IntegrationMap
+              items={
+                items.length
+                  ? items
+                  : [
+                      {
+                        id: 'stripe_pay_001',
+                        name: 'Stripe Payments',
+                        purpose: 'Process tokenized card checkout payments',
+                        status: 'ACTIVE',
+                        riskScore: 8,
+                        requestsPerMin: 150,
+                        expected_request_rate: 150,
+                        allowed_endpoints: ['/v1/charges', '/v1/refunds'],
+                        allowed_methods: ['POST', 'GET'],
+                        allowed_data: ['amount', 'currency', 'customer_id'],
+                        forbidden_data: ['card_cvv', 'raw_password'],
+                        lastActivity: '12s ago',
+                      },
+                      {
+                        id: 'openai_agent_001',
+                        name: 'OpenAI Agent Skill',
+                        purpose: 'AI Agent tool executing store recommendations & cart actions',
+                        status: 'ACTIVE',
+                        riskScore: 45,
+                        requestsPerMin: 220,
+                        expected_request_rate: 200,
+                        allowed_endpoints: ['/v1/chat/completions', '/agent/execute-tool'],
+                        allowed_methods: ['POST'],
+                        allowed_data: ['prompt_tokens', 'item_sku', 'quantity'],
+                        forbidden_data: ['system_prompt_tokens', 'admin_secret_key'],
+                        lastActivity: '5s ago',
+                      },
+                      {
+                        id: 'klaviyo_marketing_001',
+                        name: 'Klaviyo Marketing',
+                        purpose: 'Send automated promotional order receipts and campaign emails',
+                        status: 'ACTIVE',
+                        riskScore: 75,
+                        requestsPerMin: 310,
+                        expected_request_rate: 80,
+                        allowed_endpoints: ['/api/campaigns', '/api/subscribers'],
+                        allowed_methods: ['POST'],
+                        allowed_data: ['email', 'first_name'],
+                        forbidden_data: ['credit_card', 'password_hash'],
+                        lastActivity: '2s ago',
+                      },
+                      {
+                        id: 'fedex_delivery_001',
+                        name: 'FedEx Logistics',
+                        purpose: 'Generate tracking numbers, shipping rates and order dispatches',
+                        status: 'QUARANTINED',
+                        riskScore: 92,
+                        requestsPerMin: 850,
+                        expected_request_rate: 100,
+                        allowed_endpoints: ['/shipments/rates', '/shipments/dispatch'],
+                        allowed_methods: ['GET', 'POST'],
+                        allowed_data: ['order_id', 'shipping_address'],
+                        forbidden_data: ['payment_info', 'customer_ssn'],
+                        lastActivity: '1 min ago',
+                      },
+                    ]
+              }
+            />
           </div>
         </Reveal>
       </section>

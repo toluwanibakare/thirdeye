@@ -27,7 +27,7 @@ export function IntegrationMap({
   const coreY = 126;
   const nodeY = 272;
 
-  // Dynamic layout for up to 5 integrations from live database
+  const hasConnectedItems = items.length > 0;
   const displayItems = items.slice(0, 5);
   const n = Math.max(1, displayItems.length);
   const cardW = n <= 4 ? 180 : 154;
@@ -51,9 +51,23 @@ export function IntegrationMap({
             Authorised traffic under continuous verification
           </div>
         </div>
-        <span className="chip !border-[#0E9F6E]/30 !bg-[#0E9F6E]/[0.08] !text-[#0B7A55] font-semibold text-[11.5px]">
-          <span className="h-2 w-2 rounded-full bg-[#0E9F6E] animate-pulseDot" />
-          <span className="tabular-nums">{items.length} integrations active · live monitoring</span>
+        <span
+          className={`chip font-semibold text-[11.5px] ${
+            hasConnectedItems
+              ? '!border-[#0E9F6E]/30 !bg-[#0E9F6E]/[0.08] !text-[#0B7A55]'
+              : '!border-slate-300 !bg-slate-100 !text-slate-600'
+          }`}
+        >
+          <span
+            className={`h-2 w-2 rounded-full ${
+              hasConnectedItems ? 'bg-[#0E9F6E] animate-pulseDot' : 'bg-slate-400'
+            }`}
+          />
+          <span className="tabular-nums">
+            {hasConnectedItems
+              ? `${items.length} integrations active · live monitoring`
+              : '0 integrations active · standby'}
+          </span>
         </span>
       </div>
 
@@ -62,13 +76,15 @@ export function IntegrationMap({
         {/* Grid pattern background */}
         <div className="bg-grid absolute inset-0 opacity-30 pointer-events-none" />
 
-        {/* Scan sweep line animation */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 bottom-0 overflow-hidden">
-          <div
-            className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-brand/[0.08] to-transparent"
-            style={{ animation: 'scanSweep 6s ease-in-out infinite' }}
-          />
-        </div>
+        {/* Scan sweep line animation (only active when connected) */}
+        {hasConnectedItems && (
+          <div className="pointer-events-none absolute inset-x-0 top-0 bottom-0 overflow-hidden">
+            <div
+              className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-brand/[0.08] to-transparent"
+              style={{ animation: 'scanSweep 6s ease-in-out infinite' }}
+            />
+          </div>
+        )}
         <style>{`@keyframes scanSweep { 0%,100% { top: -12%; } 50% { top: 92%; } }`}</style>
 
         <div className="overflow-x-auto">
@@ -112,19 +128,25 @@ export function IntegrationMap({
                 height={52}
                 rx={14}
                 fill="url(#appGrad)"
-                stroke="rgba(22,119,255,0.45)"
+                stroke={hasConnectedItems ? 'rgba(22,119,255,0.45)' : 'rgba(255,255,255,0.15)'}
                 strokeWidth={1.5}
+                strokeDasharray={hasConnectedItems ? 'none' : '4 3'}
                 className="shadow-sm"
               />
               {/* App Icon Circle */}
-              <circle cx={26} cy={26} r={13} fill="#1677FF" opacity={0.25} />
-              <path d="M20 26h12 M26 20v12" stroke="#5B9CFF" strokeWidth={2} strokeLinecap="round" />
-              {/* Title & Subtitle - Start aligned with clean right margin */}
-              <text x={52} y={23} fill="#F5F9FF" fontSize={13} fontWeight={800} fontFamily="Inter, system-ui">
+              <circle cx={26} cy={26} r={13} fill={hasConnectedItems ? '#1677FF' : '#475569'} opacity={0.25} />
+              <path
+                d="M20 26h12 M26 20v12"
+                stroke={hasConnectedItems ? '#5B9CFF' : '#94A3B8'}
+                strokeWidth={2}
+                strokeLinecap="round"
+              />
+              {/* Title & Subtitle */}
+              <text x={52} y={23} fill={hasConnectedItems ? '#F5F9FF' : '#94A3B8'} fontSize={13} fontWeight={800} fontFamily="Inter, system-ui">
                 STORE APPLICATION
               </text>
-              <text x={52} y={38} fill="#8B9BB4" fontSize={9.5} fontFamily="monospace" letterSpacing={0.5}>
-                checkout · payments · delivery
+              <text x={52} y={38} fill={hasConnectedItems ? '#8B9BB4' : '#64748B'} fontSize={9.5} fontFamily="monospace" letterSpacing={0.5}>
+                {hasConnectedItems ? 'checkout · payments · delivery' : 'disconnected · no store linked'}
               </text>
             </g>
 
@@ -134,21 +156,23 @@ export function IntegrationMap({
               y1={appY + 25}
               x2={cx}
               y2={coreY - 28}
-              stroke="#1677FF"
+              stroke={hasConnectedItems ? '#1677FF' : 'rgba(255,255,255,0.15)'}
               strokeWidth={2}
               strokeDasharray="4 3"
-              strokeOpacity={0.7}
+              strokeOpacity={hasConnectedItems ? 0.7 : 0.3}
             />
-            {/* Animated App-to-Core Flow Packet */}
-            <circle cx={cx} cy={appY + 36} r={3.5} fill="#00C8D7" filter="url(#glowLight)">
-              <animate
-                attributeName="cy"
-                values={`${appY + 25};${coreY - 28};${appY + 25}`}
-                dur="2.2s"
-                repeatCount="indefinite"
-              />
-              <animate attributeName="opacity" values="1;0.4;1" dur="2.2s" repeatCount="indefinite" />
-            </circle>
+            {/* Animated App-to-Core Flow Packet (Only when connected) */}
+            {hasConnectedItems && (
+              <circle cx={cx} cy={appY + 36} r={3.5} fill="#00C8D7" filter="url(#glowLight)">
+                <animate
+                  attributeName="cy"
+                  values={`${appY + 25};${coreY - 28};${appY + 25}`}
+                  dur="2.2s"
+                  repeatCount="indefinite"
+                />
+                <animate attributeName="opacity" values="1;0.4;1" dur="2.2s" repeatCount="indefinite" />
+              </circle>
+            )}
 
             {/* 2. THIRDEYE CORE RISK ENGINE NODE (Width: 280, Height: 56) */}
             <g transform={`translate(${cx - 140}, ${coreY - 28})`}>
@@ -158,18 +182,18 @@ export function IntegrationMap({
                 height={56}
                 rx={14}
                 fill="url(#thirdEyeGrad)"
-                stroke="#1E3A8A"
+                stroke={hasConnectedItems ? '#1E3A8A' : 'rgba(255,255,255,0.15)'}
                 strokeWidth={1.5}
                 className="shadow-md"
               />
               {/* Top Cyan Accent Strip */}
-              <rect x={16} y={0} width={248} height={3} rx={1.5} fill="#00C8D7" />
+              <rect x={16} y={0} width={248} height={3} rx={1.5} fill={hasConnectedItems ? '#00C8D7' : '#475569'} />
 
               {/* Emblem Circle */}
-              <circle cx={26} cy={28} r={11} fill="none" stroke="#3B82F6" strokeWidth={2} />
-              <circle cx={26} cy={28} r={4.5} fill="#00C8D7" filter="url(#glowLight)" />
+              <circle cx={26} cy={28} r={11} fill="none" stroke={hasConnectedItems ? '#3B82F6' : '#64748B'} strokeWidth={2} />
+              <circle cx={26} cy={28} r={4.5} fill={hasConnectedItems ? '#00C8D7' : '#64748B'} filter={hasConnectedItems ? 'url(#glowLight)' : undefined} />
 
-              {/* Engine Text - Clean spacing */}
+              {/* Engine Text */}
               <text
                 x={48}
                 y={23}
@@ -190,34 +214,75 @@ export function IntegrationMap({
                 letterSpacing={1.0}
                 fontWeight={600}
               >
-                RISK ENGINE · LIVE
+                {hasConnectedItems ? 'RISK ENGINE · LIVE' : 'RISK ENGINE · STANDBY'}
               </text>
 
-              {/* Live Indicator Pill - Positioned at x=212 to avoid subtitle text */}
-              <g transform="translate(212, 18)">
+              {/* Indicator Pill */}
+              <g transform="translate(204, 18)">
                 <rect
-                  width={54}
+                  width={64}
                   height={20}
                   rx={10}
-                  fill="#0E9F6E"
+                  fill={hasConnectedItems ? '#0E9F6E' : '#475569'}
                   fillOpacity={0.2}
-                  stroke="#0E9F6E"
+                  stroke={hasConnectedItems ? '#0E9F6E' : '#64748B'}
                   strokeWidth={1}
                 />
-                <circle cx={12} cy={10} r={3} fill="#19D98A" className="animate-pulseDot" />
+                <circle
+                  cx={12}
+                  cy={10}
+                  r={3}
+                  fill={hasConnectedItems ? '#19D98A' : '#94A3B8'}
+                  className={hasConnectedItems ? 'animate-pulseDot' : ''}
+                />
                 <text
-                  x={32}
+                  x={36}
                   y={13.5}
                   textAnchor="middle"
-                  fill="#19D98A"
-                  fontSize={9.5}
+                  fill={hasConnectedItems ? '#19D98A' : '#94A3B8'}
+                  fontSize={9}
                   fontWeight={800}
                   fontFamily="Inter, system-ui"
                 >
-                  LIVE
+                  {hasConnectedItems ? 'LIVE' : 'STANDBY'}
                 </text>
               </g>
             </g>
+
+            {!hasConnectedItems && (
+              <g transform={`translate(${cx - 180}, ${nodeY - 35})`}>
+                <rect
+                  width={360}
+                  height={64}
+                  rx={14}
+                  fill="#0E1A33"
+                  stroke="rgba(245,249,255,0.12)"
+                  strokeWidth={1}
+                  strokeDasharray="5 4"
+                />
+                <text
+                  x={180}
+                  y={28}
+                  textAnchor="middle"
+                  fill="#FFFFFF"
+                  fontSize={13}
+                  fontWeight={700}
+                  fontFamily="Inter, system-ui"
+                >
+                  No Store Project Connected
+                </text>
+                <text
+                  x={180}
+                  y={45}
+                  textAnchor="middle"
+                  fill="#8B9BB4"
+                  fontSize={10.5}
+                  fontFamily="Inter, system-ui"
+                >
+                  Connect your project to ThirdEye to start live traffic monitoring
+                </text>
+              </g>
+            )}
 
             {/* Ports on bottom of ThirdEye Engine Box */}
             {corePortXs.map(px => (
