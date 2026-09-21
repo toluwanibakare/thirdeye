@@ -101,8 +101,139 @@ const AGENT_PHASES: SimulatorPhase[] = [
   },
 ];
 
+const STALE_KEY_PHASES: SimulatorPhase[] = [
+  {
+    phase: 1,
+    name: '3-Year Legacy Trial Key Ping',
+    endpoint: '/analytics/events',
+    method: 'GET',
+    dataRequested: ['anonymous_user_id'],
+    requestCount: 80,
+    expectedRisk: 5,
+    expectedAction: 'ALLOW',
+  },
+  {
+    phase: 2,
+    name: 'Forgotten Key Probe (Resigned Dev)',
+    endpoint: '/internal/legacy-v1/export',
+    method: 'GET',
+    dataRequested: ['event_type'],
+    requestCount: 250,
+    expectedRisk: 45,
+    expectedAction: 'MONITOR',
+  },
+  {
+    phase: 3,
+    name: 'Unused Key Data Harvesting',
+    endpoint: '/customers/address-book',
+    method: 'GET',
+    dataRequested: ['phone', 'address'],
+    requestCount: 650,
+    expectedRisk: 75,
+    expectedAction: 'RATE_LIMIT',
+  },
+  {
+    phase: 4,
+    name: 'Stale Trial Breach & Auto-Quarantine',
+    endpoint: '/customers/address-book',
+    method: 'GET',
+    dataRequested: ['phone', 'address', 'customer_password_hash'],
+    requestCount: 1500,
+    expectedRisk: 95,
+    expectedAction: 'BLOCK',
+  },
+];
+
+const SEASONAL_PHASES: SimulatorPhase[] = [
+  {
+    phase: 1,
+    name: 'Black Friday Normal Sales Traffic',
+    endpoint: '/checkout/validate',
+    method: 'POST',
+    dataRequested: ['item_sku', 'quantity'],
+    requestCount: 200,
+    expectedRisk: 5,
+    expectedAction: 'ALLOW',
+  },
+  {
+    phase: 2,
+    name: 'Sales Campaign Endpoint Probe',
+    endpoint: '/orders/search',
+    method: 'GET',
+    dataRequested: ['order_id'],
+    requestCount: 500,
+    expectedRisk: 45,
+    expectedAction: 'MONITOR',
+  },
+  {
+    phase: 3,
+    name: 'Hiding PII Theft Inside Sales Surge',
+    endpoint: '/orders/financial-records',
+    method: 'GET',
+    dataRequested: ['amount', 'payment_token'],
+    requestCount: 1100,
+    expectedRisk: 75,
+    expectedAction: 'RATE_LIMIT',
+  },
+  {
+    phase: 4,
+    name: 'Mass Financial Exfiltration Flood',
+    endpoint: '/orders/financial-records',
+    method: 'GET',
+    dataRequested: ['amount', 'payment_token', 'bank_account_secret'],
+    requestCount: 2400,
+    expectedRisk: 95,
+    expectedAction: 'BLOCK',
+  },
+];
+
+const COURIER_PHASES: SimulatorPhase[] = [
+  {
+    phase: 1,
+    name: 'Normal Parcel Dispatch Request',
+    endpoint: '/delivery/shipments',
+    method: 'POST',
+    dataRequested: ['order_id', 'shipping_address'],
+    requestCount: 70,
+    expectedRisk: 5,
+    expectedAction: 'ALLOW',
+  },
+  {
+    phase: 2,
+    name: 'Logistics Partner System Probe',
+    endpoint: '/customers/summary',
+    method: 'GET',
+    dataRequested: ['customer_name'],
+    requestCount: 220,
+    expectedRisk: 45,
+    expectedAction: 'MONITOR',
+  },
+  {
+    phase: 3,
+    name: 'Courier API Over-Reach into Financials',
+    endpoint: '/customers/payment-details',
+    method: 'GET',
+    dataRequested: ['card_last4', 'phone'],
+    requestCount: 600,
+    expectedRisk: 75,
+    expectedAction: 'RATE_LIMIT',
+  },
+  {
+    phase: 4,
+    name: 'Unauthorized Financial Data Scrape',
+    endpoint: '/customers/payment-details',
+    method: 'GET',
+    dataRequested: ['card_last4', 'phone', 'full_credit_card'],
+    requestCount: 1400,
+    expectedRisk: 95,
+    expectedAction: 'BLOCK',
+  },
+];
+
 export default function SimulatorPage() {
-  const [attackType, setAttackType] = useState<'credential_compromise' | 'agent_drift'>('credential_compromise');
+  const [attackType, setAttackType] = useState<
+    'credential_compromise' | 'agent_drift' | 'stale_key_leak' | 'seasonal_surge_abuse' | 'courier_address_harvesting'
+  >('credential_compromise');
   const [integrations, setIntegrations] = useState<IntegrationRow[]>([]);
   const [integrationId, setIntegrationId] = useState('analytics_001');
   const [running, setRunning] = useState(false);
@@ -291,6 +422,49 @@ export default function SimulatorPage() {
         </div>
       </div>
 
+      {/* Live Integration Health Monitor (Normal vs Misbehaving) */}
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl border border-[#19D98A]/30 bg-[#19D98A]/5 p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-[#19D98A] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-[#19D98A] animate-pulse" />
+              🟢 BEHAVING NORMALLY (2 INTEGRATIONS)
+            </span>
+            <span className="chip !text-[10px] !border-[#19D98A]/30 !bg-[#19D98A]/10 !text-[#19D98A]">RISK SCORE 5-12</span>
+          </div>
+          <div className="space-y-1.5 text-[12.5px] text-white">
+            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
+              <span>💳 <strong>Stripe Payments</strong> (<code className="text-[#5B9CFF]">payment_001</code>)</span>
+              <span className="text-[#19D98A] font-bold text-[11px]">ACTIVE · 0 Violations</span>
+            </div>
+            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
+              <span>📦 <strong>ShipFast Logistics</strong> (<code className="text-[#5B9CFF]">delivery_001</code>)</span>
+              <span className="text-[#19D98A] font-bold text-[11px]">ACTIVE · 0 Violations</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-[#FF4D5E]/30 bg-[#FF4D5E]/5 p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-[#FF8090] uppercase tracking-wider flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-[#FF4D5E] animate-ping" />
+              🔴 MISBEHAVING / DRIFTING (3 INTEGRATIONS)
+            </span>
+            <span className="chip !text-[10px] !border-[#FF4D5E]/30 !bg-[#FF4D5E]/10 !text-[#FF8090]">RISK SCORE 75-95</span>
+          </div>
+          <div className="space-y-1.5 text-[12.5px] text-white">
+            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
+              <span>📊 <strong>Segment Analytics</strong> (<code className="text-[#00C8D7]">analytics_001</code>)</span>
+              <span className="text-[#FF8090] font-bold text-[11px]">QUARANTINED · PII Leak</span>
+            </div>
+            <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-1.5 border border-white/5">
+              <span>🤖 <strong>StoreX Sales AI Agent Skill</strong> (<code className="text-[#00C8D7]">agent_001</code>)</span>
+              <span className="text-[#FF8090] font-bold text-[11px]">QUARANTINED · Prompt Drift</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
         {/* ═══ Controls ═══ */}
         <div className="space-y-4">
@@ -341,18 +515,31 @@ export default function SimulatorPage() {
                 <select
                   value={attackType}
                   onChange={e => {
-                    const next = e.target.value as 'credential_compromise' | 'agent_drift';
+                    const next = e.target.value as any;
                     setAttackType(next);
-                    setPhases(next === 'agent_drift' ? AGENT_PHASES : FALLBACK_PHASES);
+                    if (next === 'agent_drift') setPhases(AGENT_PHASES);
+                    else if (next === 'stale_key_leak') setPhases(STALE_KEY_PHASES);
+                    else if (next === 'seasonal_surge_abuse') setPhases(SEASONAL_PHASES);
+                    else if (next === 'courier_address_harvesting') setPhases(COURIER_PHASES);
+                    else setPhases(FALLBACK_PHASES);
                   }}
                   className="input mt-2"
                   disabled={running}
                 >
                   <option value="credential_compromise" style={{ background: '#0E1A33' }}>
-                    🔑 Credential Compromise (API Key Leak)
+                    🔑 Credential Compromise & PII Exfiltration
+                  </option>
+                  <option value="stale_key_leak" style={{ background: '#0E1A33' }}>
+                    ⏳ 3-Year-Old Stale Trial Key Misuse (G1 Scenario)
+                  </option>
+                  <option value="seasonal_surge_abuse" style={{ background: '#0E1A33' }}>
+                    🛍️ Seasonal Sales Campaign Traffic Masking
+                  </option>
+                  <option value="courier_address_harvesting" style={{ background: '#0E1A33' }}>
+                    📦 Courier & Logistics Over-Reach
                   </option>
                   <option value="agent_drift" style={{ background: '#0E1A33' }}>
-                    🤖 AI Agent Skill & Tool Drift (Prompt Injection)
+                    🤖 Autonomous AI Agent Skill & Tool Drift
                   </option>
                 </select>
               </div>
