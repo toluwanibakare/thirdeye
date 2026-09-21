@@ -1,7 +1,44 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+/**
+ * Resolves the ThirdEye API base URL dynamically:
+ * - On non-localhost environments (e.g. deployed on Vercel or custom domain),
+ *   it defaults to '' (relative path), hitting the Next.js serverless route handlers
+ *   on the same origin directly, avoiding any CORS or unreachable localhost issues.
+ * - If NEXT_PUBLIC_API_URL is explicitly configured to an external origin, it is honored.
+ * - On local development (localhost), it falls back to NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'.
+ */
+export function getApiUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+  if (typeof window !== 'undefined') {
+    const isLocal =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.startsWith('192.168.') ||
+      window.location.hostname.startsWith('10.');
+
+    if (!isLocal) {
+      if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+        return envUrl.replace(/\/+$/, '');
+      }
+      return '';
+    }
+
+    return envUrl ? envUrl.replace(/\/+$/, '') : '';
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return envUrl ? envUrl.replace(/\/+$/, '') : 'http://localhost:4000';
+}
+
+export const API_URL = getApiUrl();
 
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const baseUrl = getApiUrl();
+  const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  const res = await fetch(url, {
     ...init,
     headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) },
   });
@@ -337,7 +374,8 @@ export interface ThreatStats {
 
 export async function checkEngineHealth(): Promise<boolean> {
   try {
-    const res = await fetch(`${API_URL}/healthz`, { cache: 'no-store' });
+    const baseUrl = getApiUrl();
+    const res = await fetch(`${baseUrl}/healthz`, { cache: 'no-store' });
     return res.ok;
   } catch {
     return false;
@@ -346,7 +384,8 @@ export async function checkEngineHealth(): Promise<boolean> {
 
 export async function downloadAuditExport(format: 'csv' | 'json' = 'json', fallbackEvents?: SecEvent[]) {
   try {
-    const url = `${API_URL}/api/security-events/export?format=${format}`;
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/api/security-events/export?format=${format}`;
     const res = await fetch(url);
     if (res.ok) {
       const blob = await res.blob();

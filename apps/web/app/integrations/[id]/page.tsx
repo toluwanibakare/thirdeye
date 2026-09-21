@@ -38,7 +38,8 @@ import {
 } from '@/lib/api';
 
 export default function IntegrationDetail() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
+  const id = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : '';
   const router = useRouter();
   const devMode = useDevMode();
   const [profile, setProfile] = useState<IntegrationRow | null>(null);
